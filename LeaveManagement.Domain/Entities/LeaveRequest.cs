@@ -13,6 +13,6 @@ namespace LeaveManagement.Domain.Entities
         public decimal NoOfDays { get; set; }
         public string? Reason { get; set; }
         public LeaveStatus LeaveStatus { get; set; }
-        public ICollection<Approval> Approval { get; set; } = new List<Approval>();
+        public ICollection<Approval> Approvals { get; set; } = new List<Approval>();
     }
 }
