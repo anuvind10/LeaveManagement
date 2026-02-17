@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LeaveManagement.Domain.Enums
 {
-    internal class LeaveType
+    public class LeaveType
     {
         public enum LeaveTypes { 
             Annual,

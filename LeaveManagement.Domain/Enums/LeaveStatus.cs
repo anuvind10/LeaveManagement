@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LeaveManagement.Domain.Enums
 {
-    internal class LeaveStatus
+    public class LeaveStatus
     {
         public enum LeaveStatuses { 
             Pending,

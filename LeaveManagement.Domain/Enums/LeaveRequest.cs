@@ -4,14 +4,14 @@ using System.Text;
 
 namespace LeaveManagement.Domain.Enums
 {
-    internal class LeaveRequest
+    public class LeaveRequest
     {
         public int EmployeeId { get; set; }
         public int LeaveStatus { get; set; }
-        public Approvals Approval { get; set; }
+        public ICollection<Approvals> Approval { get; set; }
     }
 
-    internal class Approvals 
+    public class Approvals 
     {
         public int ApprovalId { get; set; }
         public int Approver { get; set; }
