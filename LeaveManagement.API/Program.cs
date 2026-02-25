@@ -1,4 +1,7 @@
-﻿using LeaveManagement.Infrastructure.Persistence;
+﻿using LeaveManagement.Application.Interfaces;
+using LeaveManagement.Application.Services;
+using LeaveManagement.Infrastructure.Persistence;
+using LeaveManagement.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -6,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
+builder.Services.AddScoped<LeaveRequestService>();
 
 // Add services to the container
 builder.Services.AddControllers();
