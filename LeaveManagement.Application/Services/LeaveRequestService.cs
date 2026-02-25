@@ -66,5 +66,34 @@ namespace LeaveManagement.Application.Services
                 throw new ArgumentException("End Date cannot be before start date.");
             }
         }
+
+        public async Task<LeaveRequestDto?> GetByIdAsync(Guid id) { 
+            var leaveRequest = await _repository.GetByIdAsync(id);
+
+            if (leaveRequest == null) {
+                return null;
+            }
+
+            var dto = new LeaveRequestDto()
+            {
+                Id = leaveRequest.Id,
+                SubmittedDate = leaveRequest.SubmittedDate,
+                LeaveType = leaveRequest.LeaveType,
+                StartDate = leaveRequest.StartDate,
+                EndDate = leaveRequest.EndDate,
+                NoOfDays = leaveRequest.NoOfDays,
+                Reason = leaveRequest.Reason,
+                LeaveStatus = leaveRequest.LeaveStatus,
+                Approvals = leaveRequest.Approvals.Select(approval => new ApprovalDto
+                {
+                    ApprovalId = approval.ApprovalId,
+                    ApproverId = approval.ApproverId,
+                    ProcessDateTime = approval.ProcessDateTime,
+                    Comments = approval.Comments
+                }).ToList()
+            };
+                
+            return dto;
+        }
     }
 }
