@@ -51,7 +51,6 @@ namespace LeaveManagement.Infrastructure.Repositories
         }
         public async Task UpdateAsync(LeaveRequest leaveRequest)
         {
-            _context.LeaveRequests.Update(leaveRequest);
             await _context.SaveChangesAsync();
         }
         public async Task DeleteAsync(Guid id)
