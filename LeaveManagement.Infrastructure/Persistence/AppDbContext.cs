@@ -30,7 +30,7 @@ namespace LeaveManagement.Infrastructure.Persistence
                 // Configure relationship: LeaveRequest has many Approvals
                 entity.HasMany(e => e.Approvals)
                     .WithOne()
-                    .HasForeignKey("LeaveRequestId")
+                    .HasForeignKey(a => a.LeaveRequestId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
