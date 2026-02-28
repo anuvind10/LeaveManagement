@@ -3,6 +3,7 @@
     public class Approval
     {
         public Guid ApprovalId { get; set; }
+        public Guid LeaveRequestId { get; set; }
         public int ApproverId { get; set; }
         public DateTime ProcessDateTime { get; set; }
         public string? Comments { get; set; }

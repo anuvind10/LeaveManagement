@@ -4,6 +4,7 @@ using LeaveManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LeaveManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260228074024_AddLeaveRequestIdToApproval")]
+    partial class AddLeaveRequestIdToApproval
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,7 +38,10 @@ namespace LeaveManagement.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<Guid>("LeaveRequestId")
+                    b.Property<Guid>("LeavRequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("LeaveRequestId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("ProcessDateTime")
@@ -90,8 +96,7 @@ namespace LeaveManagement.Infrastructure.Migrations
                     b.HasOne("LeaveManagement.Domain.Entities.LeaveRequest", null)
                         .WithMany("Approvals")
                         .HasForeignKey("LeaveRequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("LeaveManagement.Domain.Entities.LeaveRequest", b =>

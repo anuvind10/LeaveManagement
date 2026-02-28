@@ -25,6 +25,7 @@ namespace LeaveManagement.Domain.Entities
             var approval = new Approval()
             {
                 ApprovalId = Guid.NewGuid(),
+                LeaveRequestId = Id,
                 ApproverId = approverId,
                 ProcessDateTime = DateTime.UtcNow,
                 Comments = comments
