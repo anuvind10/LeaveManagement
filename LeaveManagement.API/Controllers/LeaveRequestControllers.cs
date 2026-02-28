@@ -1,5 +1,6 @@
 ﻿using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Services;
+using LeaveManagement.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LeaveManagement.API.Controllers
@@ -38,6 +39,24 @@ namespace LeaveManagement.API.Controllers
                 return NotFound();
 
             return Ok(result);
+        }
+
+        [HttpPut("{id}/approve")]
+        public async Task<ActionResult<LeaveRequestDto>> Approve([FromRoute] Guid id, [FromBody] ApproveLeaveRequestDto dto) {
+            try
+            {
+                int approverId = 2;
+                var result = await _service.ApproveLeaveRequestAsync(id, approverId, dto.Comments);
+
+                if (result == null)
+                    return NotFound();
+
+                return Ok(result);
+            }
+            catch (DomainException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
