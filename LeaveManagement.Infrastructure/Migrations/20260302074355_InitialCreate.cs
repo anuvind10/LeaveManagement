@@ -31,20 +31,21 @@ namespace LeaveManagement.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Approvals",
+                name: "LeaveAudits",
                 columns: table => new
                 {
-                    ApprovalId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ApproverId = table.Column<int>(type: "int", nullable: false),
+                    AuditId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LeaveRequestId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AuditorId = table.Column<int>(type: "int", nullable: false),
                     ProcessDateTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Comments = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                    LeaveRequestId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    Action = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Approvals", x => x.ApprovalId);
+                    table.PrimaryKey("PK_LeaveAudits", x => x.AuditId);
                     table.ForeignKey(
-                        name: "FK_Approvals_LeaveRequests_LeaveRequestId",
+                        name: "FK_LeaveAudits_LeaveRequests_LeaveRequestId",
                         column: x => x.LeaveRequestId,
                         principalTable: "LeaveRequests",
                         principalColumn: "Id",
@@ -52,8 +53,8 @@ namespace LeaveManagement.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Approvals_LeaveRequestId",
-                table: "Approvals",
+                name: "IX_LeaveAudits_LeaveRequestId",
+                table: "LeaveAudits",
                 column: "LeaveRequestId");
         }
 
@@ -61,7 +62,7 @@ namespace LeaveManagement.Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Approvals");
+                name: "LeaveAudits");
 
             migrationBuilder.DropTable(
                 name: "LeaveRequests");

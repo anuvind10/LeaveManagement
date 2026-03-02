@@ -2,7 +2,7 @@
 
 namespace LeaveManagement.Domain.Entities
 {
-    public class LeaveAudits
+    public class LeaveAudit
     {
         public Guid AuditId { get; set; }
         public Guid LeaveRequestId { get; set; }

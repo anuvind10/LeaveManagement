@@ -14,7 +14,7 @@ namespace LeaveManagement.Domain.Entities
         public decimal NoOfDays { get; set; }
         public string? Reason { get; set; }
         public LeaveStatus LeaveStatus { get; set; }
-        public ICollection<LeaveAudits> LeaveAudits { get; set; } = new List<LeaveAudits>();
+        public ICollection<LeaveAudit> LeaveAudits { get; set; } = new List<LeaveAudit>();
         public void Approve(int auditorId, string? comments) {
             if (LeaveStatus != LeaveStatus.Pending)
             {
@@ -47,7 +47,7 @@ namespace LeaveManagement.Domain.Entities
         }
 
         private void CreateApproval(int auditorId, string? comments, LeaveAction action) {
-            var approval = new LeaveAudits()
+            var approval = new LeaveAudit()
             {
                 LeaveRequestId = Id,
                 AuditorId = auditorId,

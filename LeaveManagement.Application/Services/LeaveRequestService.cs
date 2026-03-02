@@ -25,7 +25,7 @@ namespace LeaveManagement.Application.Services
                 NoOfDays = CalculateNoOfDays(dto.StartDate, dto.EndDate),
                 Reason = dto.Reason,
                 LeaveStatus = LeaveStatus.Pending,
-                LeaveAudits = new List<LeaveAudits>()
+                LeaveAudits = new List<LeaveAudit>()
             };
 
             ValidateInputs(leaveRequest);

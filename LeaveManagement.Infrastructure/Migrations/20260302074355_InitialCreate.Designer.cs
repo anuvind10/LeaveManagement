@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LeaveManagement.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260302063348_RefactorApprovalsToLeaveAudit")]
-    partial class RefactorApprovalsToLeaveAudit
+    [Migration("20260302074355_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -51,7 +51,7 @@ namespace LeaveManagement.Infrastructure.Migrations
 
                     b.HasIndex("LeaveRequestId");
 
-                    b.ToTable("Approvals");
+                    b.ToTable("LeaveAudits", (string)null);
                 });
 
             modelBuilder.Entity("LeaveManagement.Domain.Entities.LeaveRequest", b =>

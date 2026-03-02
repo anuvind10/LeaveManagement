@@ -10,11 +10,13 @@ namespace LeaveManagement.Infrastructure.Persistence
         }
 
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
-        public DbSet<LeaveAudits> LeaveAudits { get; set; }
+        public DbSet<LeaveAudit> LeaveAudits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<LeaveAudit>().ToTable("LeaveAudits");
 
             // Configure LeaveRequest entity
             modelBuilder.Entity<LeaveRequest>(entity =>
@@ -35,7 +37,7 @@ namespace LeaveManagement.Infrastructure.Persistence
             });
 
             // Configure LeaveAudit entity
-            modelBuilder.Entity<LeaveAudits>(entity =>
+            modelBuilder.Entity<LeaveAudit>(entity =>
             {
                 entity.HasKey(e => e.AuditId);
                 entity.Property(e => e.AuditId)

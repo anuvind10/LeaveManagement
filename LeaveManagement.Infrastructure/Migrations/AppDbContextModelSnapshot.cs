@@ -48,7 +48,7 @@ namespace LeaveManagement.Infrastructure.Migrations
 
                     b.HasIndex("LeaveRequestId");
 
-                    b.ToTable("Approvals");
+                    b.ToTable("LeaveAudits", (string)null);
                 });
 
             modelBuilder.Entity("LeaveManagement.Domain.Entities.LeaveRequest", b =>
