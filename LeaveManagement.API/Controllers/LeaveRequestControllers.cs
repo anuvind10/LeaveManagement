@@ -1,5 +1,6 @@
 ﻿using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Services;
+using LeaveManagement.Domain.Enums;
 using LeaveManagement.Domain.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,6 +38,30 @@ namespace LeaveManagement.API.Controllers
 
             if (result == null)
                 return NotFound();
+
+            return Ok(result);
+        }
+
+        [HttpGet("employee/{employeeId}")]
+        public async Task<ActionResult<IEnumerable<LeaveRequestSummaryDto>>> GetByEmployeeId(int employeeId)
+        {
+            var result = await _service.GetByEmployeeIdAsync(employeeId);
+
+            return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<LeaveRequestSummaryDto>>> GetAll(LeaveStatus? status)
+        {
+            IEnumerable<LeaveRequestSummaryDto> result;
+            if (status.HasValue)
+            {
+                result = await _service.GetByStatusAsync(status.Value);
+            }
+            else
+            {
+                result = await _service.GetAllAsync();
+            }
 
             return Ok(result);
         }

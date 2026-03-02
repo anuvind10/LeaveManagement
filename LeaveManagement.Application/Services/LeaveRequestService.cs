@@ -91,6 +91,26 @@ namespace LeaveManagement.Application.Services
             return MapToLeaveRequestDto(leaveRequest);
         }
 
+        public async Task<IEnumerable<LeaveRequestSummaryDto>> GetAllAsync() {
+            var leaveRequests = await _repository.GetAllAsync();
+
+            return MapToLeaveRequestSummaryDto(leaveRequests);
+        }
+
+        public async Task<IEnumerable<LeaveRequestSummaryDto>> GetByStatusAsync(LeaveStatus status)
+        {
+            var leaveRequests = await _repository.GetByStatusAsync(status);
+
+            return MapToLeaveRequestSummaryDto(leaveRequests);
+        }
+
+        public async Task<IEnumerable<LeaveRequestSummaryDto>> GetByEmployeeIdAsync(int employeeId)
+        {
+            var leaveRequests = await _repository.GetByEmployeeIdAsync(employeeId);
+
+            return MapToLeaveRequestSummaryDto(leaveRequests);
+        }
+
         private decimal CalculateNoOfDays(DateTime startDate, DateTime endDate) 
         {
             var noOfDays = endDate - startDate;
@@ -126,6 +146,20 @@ namespace LeaveManagement.Application.Services
             };
 
             return dto;
+        }
+
+        private IEnumerable<LeaveRequestSummaryDto> MapToLeaveRequestSummaryDto(IEnumerable<LeaveRequest> leaveRequests)
+        {
+            var leaveRequestSummaryDtos = leaveRequests.Select(lr => new LeaveRequestSummaryDto
+            {
+                Id = lr.Id,
+                LeaveType = lr.LeaveType,
+                NoOfDays = lr.NoOfDays,
+                Reason = lr.Reason,
+                LeaveStatus = lr.LeaveStatus
+            });
+            
+            return leaveRequestSummaryDtos;
         }
     }
 }
