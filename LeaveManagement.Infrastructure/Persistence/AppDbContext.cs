@@ -38,6 +38,8 @@ namespace LeaveManagement.Infrastructure.Persistence
             modelBuilder.Entity<Approval>(entity =>
             {
                 entity.HasKey(e => e.ApprovalId);
+                entity.Property(e => e.ApprovalId)
+                    .ValueGeneratedOnAdd();
                 entity.Property(e => e.LeaveRequestId)
                     .IsRequired();
                 entity.Property(e => e.Comments)

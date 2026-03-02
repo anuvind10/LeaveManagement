@@ -24,7 +24,6 @@ namespace LeaveManagement.Domain.Entities
             // Create new approval and add it to the Approvals list
             var approval = new Approval()
             {
-                ApprovalId = Guid.NewGuid(),
                 LeaveRequestId = Id,
                 ApproverId = approverId,
                 ProcessDateTime = DateTime.UtcNow,
