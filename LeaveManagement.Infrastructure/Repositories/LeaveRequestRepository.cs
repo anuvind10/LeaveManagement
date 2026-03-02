@@ -17,7 +17,7 @@ namespace LeaveManagement.Infrastructure.Repositories
         
         public async Task<IEnumerable<LeaveRequest>> GetAllAsync()
         {
-            return await _context.LeaveRequests
+            return await _context.LeaveRequests 
                 .Include(lr => lr.LeaveAudits)
                 .ToListAsync();
         }
