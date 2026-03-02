@@ -36,6 +36,16 @@ namespace LeaveManagement.Domain.Entities
             LeaveStatus = LeaveStatus.Rejected;
         }
 
+        public void Cancel(int auditorId, string? comments) {
+            if (LeaveStatus != LeaveStatus.Pending &&
+                LeaveStatus != LeaveStatus.Approved) {
+                throw new InvalidLeaveStatusException(nameof(Cancel), LeaveStatus);
+            }
+
+            CreateApproval(auditorId, comments, LeaveAction.Canceled);
+            LeaveStatus = LeaveStatus.Canceled;
+        }
+
         private void CreateApproval(int auditorId, string? comments, LeaveAction action) {
             var approval = new LeaveAudits()
             {

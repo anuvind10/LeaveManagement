@@ -76,6 +76,21 @@ namespace LeaveManagement.Application.Services
             return MapToLeaveRequestDto(leaveRequest);
         }
 
+        public async Task<LeaveRequestDto?> CancelLeaveRequestAsync(Guid id, int auditorId, string? comments)
+        {
+            var leaveRequest = await _repository.GetByIdAsync(id);
+
+            if (leaveRequest == null)
+            {
+                return null;
+            }
+
+            leaveRequest.Cancel(auditorId, comments);
+            await _repository.UpdateAsync(leaveRequest);
+
+            return MapToLeaveRequestDto(leaveRequest);
+        }
+
         private decimal CalculateNoOfDays(DateTime startDate, DateTime endDate) 
         {
             var noOfDays = endDate - startDate;

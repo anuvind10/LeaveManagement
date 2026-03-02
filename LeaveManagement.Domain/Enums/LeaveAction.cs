@@ -3,6 +3,7 @@
     public enum LeaveAction
     {
         Approved,
-        Rejected
+        Rejected,
+        Canceled
     }
 }

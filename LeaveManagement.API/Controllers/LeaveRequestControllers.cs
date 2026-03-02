@@ -75,5 +75,24 @@ namespace LeaveManagement.API.Controllers
                 return BadRequest(ex.Message); 
             }
         }
+
+        [HttpPut("{id}/cancel")]
+        public async Task<ActionResult<LeaveRequestDto>> Cancel([FromRoute] Guid id, [FromBody] CancelLeaveRequestDto dto)
+        {
+            try
+            {
+                int auditorId = 3;
+                var result = await _service.CancelLeaveRequestAsync(id, auditorId, dto.Comments);
+
+                if (result == null)
+                    return NotFound();
+
+                return Ok(result);
+            }
+            catch (DomainException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
