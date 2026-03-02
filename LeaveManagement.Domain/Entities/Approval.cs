@@ -1,4 +1,6 @@
-﻿namespace LeaveManagement.Domain.Entities
+﻿using LeaveManagement.Domain.Enums;
+
+namespace LeaveManagement.Domain.Entities
 {
     public class Approval
     {
@@ -7,5 +9,6 @@
         public int ApproverId { get; set; }
         public DateTime ProcessDateTime { get; set; }
         public string? Comments { get; set; }
+        public ApprovalAction Action { get; set; }
     }
 }

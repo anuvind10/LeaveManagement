@@ -20,5 +20,6 @@ namespace LeaveManagement.Application.DTOs
         public int ApproverId { get; set; }
         public DateTime ProcessDateTime { get; set; }
         public string? Comments { get; set; }
+        public ApprovalAction Action { get; set; }
     }
 }

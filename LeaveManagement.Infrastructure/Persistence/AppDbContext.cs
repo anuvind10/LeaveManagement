@@ -44,6 +44,7 @@ namespace LeaveManagement.Infrastructure.Persistence
                     .IsRequired();
                 entity.Property(e => e.Comments)
                     .HasMaxLength(500);
+                entity.Property(e => e.Action);
             });
         }
     }

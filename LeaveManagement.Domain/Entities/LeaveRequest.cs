@@ -27,7 +27,8 @@ namespace LeaveManagement.Domain.Entities
                 LeaveRequestId = Id,
                 ApproverId = approverId,
                 ProcessDateTime = DateTime.UtcNow,
-                Comments = comments
+                Comments = comments,
+                Action = ApprovalAction.Approved
             };
 
             Approvals.Add(approval);
