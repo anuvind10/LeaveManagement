@@ -61,6 +61,21 @@ namespace LeaveManagement.Application.Services
             return MapToLeaveRequestDto(leaveRequest);
         }
 
+        public async Task<LeaveRequestDto?> RejectLeaveRequestAsync(Guid id, int approverId, string comments)
+        {
+            var leaveRequest = await _repository.GetByIdAsync(id);
+
+            if (leaveRequest == null)
+            {
+                return null;
+            }
+
+            leaveRequest.Reject(approverId, comments);
+            await _repository.UpdateAsync(leaveRequest);
+
+            return MapToLeaveRequestDto(leaveRequest);
+        }
+
         private decimal CalculateNoOfDays(DateTime startDate, DateTime endDate) 
         {
             var noOfDays = endDate - startDate;
@@ -90,7 +105,8 @@ namespace LeaveManagement.Application.Services
                     ApprovalId = approval.ApprovalId,
                     ApproverId = approval.ApproverId,
                     ProcessDateTime = approval.ProcessDateTime,
-                    Comments = approval.Comments
+                    Comments = approval.Comments,
+                    Action = approval.Action,
                 }).ToList()
             };
 

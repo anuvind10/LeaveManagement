@@ -58,5 +58,22 @@ namespace LeaveManagement.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("{id}/reject")]
+        public async Task<ActionResult<LeaveRequestDto>> Reject([FromRoute] Guid id, [FromBody] RejectLeaveRequestDto dto) {
+            try
+            {
+                int approverId = 3;
+                var result = await _service.RejectLeaveRequestAsync(id, approverId, dto.Comments);
+
+                if (result == null)
+                    return NotFound();
+
+                return Ok(result);
+            }
+            catch (DomainException ex) { 
+                return BadRequest(ex.Message); 
+            }
+        }
     }
 }

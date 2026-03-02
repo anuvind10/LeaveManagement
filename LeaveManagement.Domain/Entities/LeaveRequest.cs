@@ -21,20 +21,32 @@ namespace LeaveManagement.Domain.Entities
                 throw new InvalidLeaveStatusException(nameof(Approve), LeaveStatus);
             }
 
-            // Create new approval and add it to the Approvals list
+            CreateApproval(approverId, comments, ApprovalAction.Rejected);
+            LeaveStatus = LeaveStatus.Approved;
+        }
+
+        public void Reject(int rejectorId, string comments) 
+        {
+            if (LeaveStatus != LeaveStatus.Pending)
+            {
+                throw new InvalidLeaveStatusException(nameof(Reject), LeaveStatus);
+            }
+
+            CreateApproval(rejectorId, comments, ApprovalAction.Rejected);
+            LeaveStatus = LeaveStatus.Rejected;
+        }
+
+        private void CreateApproval(int approverId, string? comments, ApprovalAction action) {
             var approval = new Approval()
             {
                 LeaveRequestId = Id,
                 ApproverId = approverId,
                 ProcessDateTime = DateTime.UtcNow,
                 Comments = comments,
-                Action = ApprovalAction.Approved
+                Action = action
             };
 
             Approvals.Add(approval);
-
-            // Approve the request
-            LeaveStatus = LeaveStatus.Approved;
         }
     }
 }
