@@ -16,8 +16,8 @@ namespace LeaveManagement.Application.DTOs
     }
     public class LeaveAuditDto
     {
-        public Guid AuditorId { get; set; }
-        public int ApproverId { get; set; }
+        public Guid AuditId { get; set; }
+        public int AuditorId { get; set; }
         public DateTime ProcessDateTime { get; set; }
         public string? Comments { get; set; }
         public LeaveAction Action { get; set; }

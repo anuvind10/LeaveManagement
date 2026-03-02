@@ -102,8 +102,8 @@ namespace LeaveManagement.Application.Services
                 LeaveStatus = leaveRequest.LeaveStatus,
                 LeaveAudits = leaveRequest.LeaveAudits.Select(audit => new LeaveAuditDto
                 {
-                    AuditorId = audit.AuditId,
-                    ApproverId = audit.AuditorId,
+                    AuditId = audit.AuditId,
+                    AuditorId = audit.AuditorId,
                     ProcessDateTime = audit.ProcessDateTime,
                     Comments = audit.Comments,
                     Action = audit.Action,
