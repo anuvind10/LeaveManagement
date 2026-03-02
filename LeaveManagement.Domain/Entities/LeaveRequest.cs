@@ -21,7 +21,7 @@ namespace LeaveManagement.Domain.Entities
                 throw new InvalidLeaveStatusException(nameof(Approve), LeaveStatus);
             }
 
-            CreateApproval(approverId, comments, ApprovalAction.Rejected);
+            CreateApproval(approverId, comments, ApprovalAction.Approved);
             LeaveStatus = LeaveStatus.Approved;
         }
 
