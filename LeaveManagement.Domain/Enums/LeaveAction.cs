@@ -1,6 +1,6 @@
 ﻿namespace LeaveManagement.Domain.Enums
 {
-    public enum ApprovalAction
+    public enum LeaveAction
     {
         Approved,
         Rejected

@@ -45,8 +45,8 @@ namespace LeaveManagement.API.Controllers
         public async Task<ActionResult<LeaveRequestDto>> Approve([FromRoute] Guid id, [FromBody] ApproveLeaveRequestDto dto) {
             try
             {
-                int approverId = 2;
-                var result = await _service.ApproveLeaveRequestAsync(id, approverId, dto.Comments);
+                int auditorId = 2;
+                var result = await _service.ApproveLeaveRequestAsync(id, auditorId, dto.Comments);
 
                 if (result == null)
                     return NotFound();
@@ -63,8 +63,8 @@ namespace LeaveManagement.API.Controllers
         public async Task<ActionResult<LeaveRequestDto>> Reject([FromRoute] Guid id, [FromBody] RejectLeaveRequestDto dto) {
             try
             {
-                int approverId = 3;
-                var result = await _service.RejectLeaveRequestAsync(id, approverId, dto.Comments);
+                int auditorId = 3;
+                var result = await _service.RejectLeaveRequestAsync(id, auditorId, dto.Comments);
 
                 if (result == null)
                     return NotFound();

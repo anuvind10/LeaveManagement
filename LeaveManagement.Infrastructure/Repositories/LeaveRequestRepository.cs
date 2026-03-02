@@ -18,14 +18,14 @@ namespace LeaveManagement.Infrastructure.Repositories
         public async Task<IEnumerable<LeaveRequest>> GetAllAsync()
         {
             return await _context.LeaveRequests
-                .Include(lr => lr.Approvals)
+                .Include(lr => lr.LeaveAudits)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<LeaveRequest>> GetByEmployeeIdAsync(int employeeId)
         {
             return await _context.LeaveRequests
-                .Include(lr => lr.Approvals)
+                .Include(lr => lr.LeaveAudits)
                 .Where(lr => lr.EmployeeId == employeeId)
                 .ToListAsync();
         }
@@ -33,14 +33,14 @@ namespace LeaveManagement.Infrastructure.Repositories
         public async Task<LeaveRequest?> GetByIdAsync(Guid id)
         {
             return await _context.LeaveRequests
-                .Include(lr => lr.Approvals)
+                .Include(lr => lr.LeaveAudits)
                 .FirstOrDefaultAsync(lr => lr.Id == id);
         }
 
         public async Task<IEnumerable<LeaveRequest>> GetByStatusAsync(LeaveStatus status)
         {
             return await _context.LeaveRequests
-                .Include(lr => lr.Approvals)
+                .Include(lr => lr.LeaveAudits)
                 .Where(lr => lr.LeaveStatus == status)
                 .ToListAsync();
         }

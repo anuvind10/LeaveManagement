@@ -25,7 +25,7 @@ namespace LeaveManagement.Application.Services
                 NoOfDays = CalculateNoOfDays(dto.StartDate, dto.EndDate),
                 Reason = dto.Reason,
                 LeaveStatus = LeaveStatus.Pending,
-                Approvals = new List<Approval>()
+                LeaveAudits = new List<LeaveAudits>()
             };
 
             ValidateInputs(leaveRequest);
@@ -47,7 +47,7 @@ namespace LeaveManagement.Application.Services
             return MapToLeaveRequestDto(leaveRequest); ;
         }
 
-        public async Task<LeaveRequestDto?> ApproveLeaveRequestAsync(Guid id, int approverId, string? comments) {
+        public async Task<LeaveRequestDto?> ApproveLeaveRequestAsync(Guid id, int auditorId, string? comments) {
             var leaveRequest = await _repository.GetByIdAsync(id);
 
             if (leaveRequest == null)
@@ -55,13 +55,13 @@ namespace LeaveManagement.Application.Services
                 return null;
             }
             
-            leaveRequest.Approve(approverId, comments);
+            leaveRequest.Approve(auditorId, comments);
             await _repository.UpdateAsync(leaveRequest);
 
             return MapToLeaveRequestDto(leaveRequest);
         }
 
-        public async Task<LeaveRequestDto?> RejectLeaveRequestAsync(Guid id, int approverId, string comments)
+        public async Task<LeaveRequestDto?> RejectLeaveRequestAsync(Guid id, int auditorId, string comments)
         {
             var leaveRequest = await _repository.GetByIdAsync(id);
 
@@ -70,7 +70,7 @@ namespace LeaveManagement.Application.Services
                 return null;
             }
 
-            leaveRequest.Reject(approverId, comments);
+            leaveRequest.Reject(auditorId, comments);
             await _repository.UpdateAsync(leaveRequest);
 
             return MapToLeaveRequestDto(leaveRequest);
@@ -100,13 +100,13 @@ namespace LeaveManagement.Application.Services
                 NoOfDays = leaveRequest.NoOfDays,
                 Reason = leaveRequest.Reason,
                 LeaveStatus = leaveRequest.LeaveStatus,
-                Approvals = leaveRequest.Approvals.Select(approval => new ApprovalDto
+                LeaveAudits = leaveRequest.LeaveAudits.Select(audit => new LeaveAuditDto
                 {
-                    ApprovalId = approval.ApprovalId,
-                    ApproverId = approval.ApproverId,
-                    ProcessDateTime = approval.ProcessDateTime,
-                    Comments = approval.Comments,
-                    Action = approval.Action,
+                    AuditorId = audit.AuditId,
+                    ApproverId = audit.AuditorId,
+                    ProcessDateTime = audit.ProcessDateTime,
+                    Comments = audit.Comments,
+                    Action = audit.Action,
                 }).ToList()
             };
 

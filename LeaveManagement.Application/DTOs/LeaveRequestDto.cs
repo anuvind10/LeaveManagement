@@ -12,14 +12,14 @@ namespace LeaveManagement.Application.DTOs
         public decimal NoOfDays { get; set; }
         public string? Reason { get; set; }
         public LeaveStatus LeaveStatus { get; set; }
-        public List<ApprovalDto>? Approvals { get; set; }
+        public List<LeaveAuditDto>? LeaveAudits { get; set; }
     }
-    public class ApprovalDto
+    public class LeaveAuditDto
     {
-        public Guid ApprovalId { get; set; }
+        public Guid AuditorId { get; set; }
         public int ApproverId { get; set; }
         public DateTime ProcessDateTime { get; set; }
         public string? Comments { get; set; }
-        public ApprovalAction Action { get; set; }
+        public LeaveAction Action { get; set; }
     }
 }

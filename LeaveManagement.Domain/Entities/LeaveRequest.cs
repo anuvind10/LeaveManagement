@@ -14,39 +14,39 @@ namespace LeaveManagement.Domain.Entities
         public decimal NoOfDays { get; set; }
         public string? Reason { get; set; }
         public LeaveStatus LeaveStatus { get; set; }
-        public ICollection<Approval> Approvals { get; set; } = new List<Approval>();
-        public void Approve(int approverId, string? comments) {
+        public ICollection<LeaveAudits> LeaveAudits { get; set; } = new List<LeaveAudits>();
+        public void Approve(int auditorId, string? comments) {
             if (LeaveStatus != LeaveStatus.Pending)
             {
                 throw new InvalidLeaveStatusException(nameof(Approve), LeaveStatus);
             }
 
-            CreateApproval(approverId, comments, ApprovalAction.Approved);
+            CreateApproval(auditorId, comments, LeaveAction.Approved);
             LeaveStatus = LeaveStatus.Approved;
         }
 
-        public void Reject(int rejectorId, string comments) 
+        public void Reject(int auditorId, string comments) 
         {
             if (LeaveStatus != LeaveStatus.Pending)
             {
                 throw new InvalidLeaveStatusException(nameof(Reject), LeaveStatus);
             }
 
-            CreateApproval(rejectorId, comments, ApprovalAction.Rejected);
+            CreateApproval(auditorId, comments, LeaveAction.Rejected);
             LeaveStatus = LeaveStatus.Rejected;
         }
 
-        private void CreateApproval(int approverId, string? comments, ApprovalAction action) {
-            var approval = new Approval()
+        private void CreateApproval(int auditorId, string? comments, LeaveAction action) {
+            var approval = new LeaveAudits()
             {
                 LeaveRequestId = Id,
-                ApproverId = approverId,
+                AuditorId = auditorId,
                 ProcessDateTime = DateTime.UtcNow,
                 Comments = comments,
                 Action = action
             };
 
-            Approvals.Add(approval);
+            LeaveAudits.Add(approval);
         }
     }
 }

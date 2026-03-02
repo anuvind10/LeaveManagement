@@ -10,7 +10,7 @@ namespace LeaveManagement.Infrastructure.Persistence
         }
 
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
-        public DbSet<Approval> Approvals { get; set; }
+        public DbSet<LeaveAudits> LeaveAudits { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,18 +27,18 @@ namespace LeaveManagement.Infrastructure.Persistence
                 entity.Property(e => e.Reason)
                     .HasMaxLength(500);
 
-                // Configure relationship: LeaveRequest has many Approvals
-                entity.HasMany(e => e.Approvals)
+                // Configure relationship: LeaveRequest has many LeaveAudits
+                entity.HasMany(e => e.LeaveAudits)
                     .WithOne()
                     .HasForeignKey(a => a.LeaveRequestId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Configure Approval entity
-            modelBuilder.Entity<Approval>(entity =>
+            // Configure LeaveAudit entity
+            modelBuilder.Entity<LeaveAudits>(entity =>
             {
-                entity.HasKey(e => e.ApprovalId);
-                entity.Property(e => e.ApprovalId)
+                entity.HasKey(e => e.AuditId);
+                entity.Property(e => e.AuditId)
                     .ValueGeneratedOnAdd();
                 entity.Property(e => e.LeaveRequestId)
                     .IsRequired();
