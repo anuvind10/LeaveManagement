@@ -21,6 +21,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>()
 builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
 builder.Services.AddScoped<LeaveRequestService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<AuthService>();
 
 // Add services to the container
 builder.Services.AddControllers();
