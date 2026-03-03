@@ -3,6 +3,7 @@ using LeaveManagement.Application.Services;
 using LeaveManagement.Domain.Entities;
 using LeaveManagement.Infrastructure.Persistence;
 using LeaveManagement.Infrastructure.Repositories;
+using LeaveManagement.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,7 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>()
 
 builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
 builder.Services.AddScoped<LeaveRequestService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 // Add services to the container
 builder.Services.AddControllers();
