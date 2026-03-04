@@ -29,7 +29,7 @@ namespace LeaveManagement.Infrastructure.Services
             }
 
             var secretKey = _configuration["JwtSettings:SecretKey"] ?? throw new InvalidOperationException("JWT SecretKey is not configured");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey);
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
