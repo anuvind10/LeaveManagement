@@ -1,7 +1,6 @@
 ﻿using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Services;
 using LeaveManagement.Domain.Enums;
-using LeaveManagement.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -23,19 +22,9 @@ namespace LeaveManagement.API.Controllers
         [HttpPost]
         public async Task<ActionResult<LeaveRequestDto>> SubmitLeaveRequest(CreateLeaveRequestDto dto) 
         {
-            try
-            {
-                int employeeId = GetCurrentUserId();
-                var result = await _service.SubmitLeaveRequestAsync(dto, employeeId);
-                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
-            }
-            catch (UnauthorizedAccessException ex) {
-                return Unauthorized(ex.Message);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            int employeeId = GetCurrentUserId();
+            var result = await _service.SubmitLeaveRequestAsync(dto, employeeId);
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
         [HttpGet("{id}")]
@@ -77,69 +66,40 @@ namespace LeaveManagement.API.Controllers
         [HttpPut("{id}/approve")]
         [Authorize(Roles = "Manager")]
         public async Task<ActionResult<LeaveRequestDto>> Approve([FromRoute] Guid id, [FromBody] ApproveLeaveRequestDto dto) {
-            try
-            {
-                int employeeId = GetCurrentUserId();
-                var result = await _service.ApproveLeaveRequestAsync(id, employeeId, dto.Comments);
 
-                if (result == null)
-                    return NotFound();
+            int employeeId = GetCurrentUserId();
+            var result = await _service.ApproveLeaveRequestAsync(id, employeeId, dto.Comments);
 
-                return Ok(result);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ex.Message);
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
         }
 
         [HttpPut("{id}/reject")]
         [Authorize(Roles = "Manager")]
         public async Task<ActionResult<LeaveRequestDto>> Reject([FromRoute] Guid id, [FromBody] RejectLeaveRequestDto dto) {
-            try
-            {
-                int employeeId = GetCurrentUserId();
-                var result = await _service.RejectLeaveRequestAsync(id, employeeId, dto.Comments);
 
-                if (result == null)
-                    return NotFound();
+            int employeeId = GetCurrentUserId();
+            var result = await _service.RejectLeaveRequestAsync(id, employeeId, dto.Comments);
 
-                return Ok(result);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ex.Message);
-            }
-            catch (DomainException ex) { 
-                return BadRequest(ex.Message); 
-            }
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
         }
 
         [HttpPut("{id}/cancel")]
         public async Task<ActionResult<LeaveRequestDto>> Cancel([FromRoute] Guid id, [FromBody] CancelLeaveRequestDto dto)
         {
-            try
-            {
-                int employeeId = GetCurrentUserId();
-                var result = await _service.CancelLeaveRequestAsync(id, employeeId, dto.Comments);
 
-                if (result == null)
-                    return NotFound();
+            int employeeId = GetCurrentUserId();
+            var result = await _service.CancelLeaveRequestAsync(id, employeeId, dto.Comments);
 
-                return Ok(result);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Unauthorized(ex.Message);
-            }
-            catch (DomainException ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
         }
 
         private int GetCurrentUserId() 

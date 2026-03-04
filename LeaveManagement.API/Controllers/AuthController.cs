@@ -17,21 +17,15 @@ namespace LeaveManagement.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Login(LoginDto dto)
         {
-            try
-            {
-                var result = await _service.LoginAsync(dto);
+            var result = await _service.LoginAsync(dto);
 
-                if (result == null)
-                {
-                    return Unauthorized();
-                }
-
-                return Ok(result);
-            }
-            catch (Exception ex)
+            if (result == null)
             {
-                return BadRequest(ex.Message);
+                return Unauthorized();
             }
+
+            return Ok(result);
+
         }
     }
 }
