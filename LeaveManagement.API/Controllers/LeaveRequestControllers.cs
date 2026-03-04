@@ -4,6 +4,7 @@ using LeaveManagement.Domain.Enums;
 using LeaveManagement.Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace LeaveManagement.API.Controllers
 {
@@ -24,11 +25,15 @@ namespace LeaveManagement.API.Controllers
         {
             try
             {
-                int employeeId = 1;
+                int employeeId = GetCurrentUserId();
                 var result = await _service.SubmitLeaveRequestAsync(dto, employeeId);
                 return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
             }
-            catch(ArgumentException ex) {
+            catch (UnauthorizedAccessException ex) {
+                return Unauthorized(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
                 return BadRequest(ex.Message);
             }
         }
@@ -74,13 +79,17 @@ namespace LeaveManagement.API.Controllers
         public async Task<ActionResult<LeaveRequestDto>> Approve([FromRoute] Guid id, [FromBody] ApproveLeaveRequestDto dto) {
             try
             {
-                int auditorId = 2;
-                var result = await _service.ApproveLeaveRequestAsync(id, auditorId, dto.Comments);
+                int employeeId = GetCurrentUserId();
+                var result = await _service.ApproveLeaveRequestAsync(id, employeeId, dto.Comments);
 
                 if (result == null)
                     return NotFound();
 
                 return Ok(result);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (DomainException ex)
             {
@@ -93,13 +102,17 @@ namespace LeaveManagement.API.Controllers
         public async Task<ActionResult<LeaveRequestDto>> Reject([FromRoute] Guid id, [FromBody] RejectLeaveRequestDto dto) {
             try
             {
-                int auditorId = 3;
-                var result = await _service.RejectLeaveRequestAsync(id, auditorId, dto.Comments);
+                int employeeId = GetCurrentUserId();
+                var result = await _service.RejectLeaveRequestAsync(id, employeeId, dto.Comments);
 
                 if (result == null)
                     return NotFound();
 
                 return Ok(result);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
             }
             catch (DomainException ex) { 
                 return BadRequest(ex.Message); 
@@ -111,18 +124,33 @@ namespace LeaveManagement.API.Controllers
         {
             try
             {
-                int auditorId = 3;
-                var result = await _service.CancelLeaveRequestAsync(id, auditorId, dto.Comments);
+                int employeeId = GetCurrentUserId();
+                var result = await _service.CancelLeaveRequestAsync(id, employeeId, dto.Comments);
 
                 if (result == null)
                     return NotFound();
 
                 return Ok(result);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
             catch (DomainException ex)
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        private int GetCurrentUserId() 
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+            {
+                throw new UnauthorizedAccessException("User ID not found in token.");
+            }
+            return userId;
         }
     }
 }
