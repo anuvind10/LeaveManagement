@@ -2,12 +2,14 @@
 using LeaveManagement.Application.Services;
 using LeaveManagement.Domain.Enums;
 using LeaveManagement.Domain.Exceptions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LeaveManagement.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class LeaveRequestControllers : ControllerBase
     {
         private readonly LeaveRequestService _service;
@@ -51,6 +53,7 @@ namespace LeaveManagement.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Manager,HR")]
         public async Task<ActionResult<IEnumerable<LeaveRequestSummaryDto>>> GetAll(LeaveStatus? status)
         {
             IEnumerable<LeaveRequestSummaryDto> result;
@@ -67,6 +70,7 @@ namespace LeaveManagement.API.Controllers
         }
 
         [HttpPut("{id}/approve")]
+        [Authorize(Roles = "Manager")]
         public async Task<ActionResult<LeaveRequestDto>> Approve([FromRoute] Guid id, [FromBody] ApproveLeaveRequestDto dto) {
             try
             {
@@ -85,6 +89,7 @@ namespace LeaveManagement.API.Controllers
         }
 
         [HttpPut("{id}/reject")]
+        [Authorize(Roles = "Manager")]
         public async Task<ActionResult<LeaveRequestDto>> Reject([FromRoute] Guid id, [FromBody] RejectLeaveRequestDto dto) {
             try
             {
