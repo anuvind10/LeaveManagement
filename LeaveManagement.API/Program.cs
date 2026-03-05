@@ -2,6 +2,7 @@
 using LeaveManagement.API.Middleware;
 using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Interfaces;
+using LeaveManagement.Application.Mappings;
 using LeaveManagement.Application.Services;
 using LeaveManagement.Application.Validators;
 using LeaveManagement.Domain.Entities;
@@ -50,10 +51,11 @@ builder.Services.AddAuthentication(options =>
 
 // Register services
 builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
-builder.Services.AddScoped<ILeaveRequestService, LeaveRequestService>();
+builder.Services.AddScoped<ILeaveRequestService, LeaveRequestService>();    
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IValidator<CreateLeaveRequestDto>, CreateLeaveRequestValidator>();
+builder.Services.AddAutoMapper(typeof(LeaveRequestProfile).Assembly);
 
 // Add services to the container
 builder.Services.AddControllers();
