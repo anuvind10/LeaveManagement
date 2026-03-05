@@ -1,4 +1,5 @@
 ﻿using LeaveManagement.Application.DTOs;
+using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Application.Services;
 using LeaveManagement.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -12,9 +13,9 @@ namespace LeaveManagement.API.Controllers
     [Authorize]
     public class LeaveRequestControllers : ControllerBase
     {
-        private readonly LeaveRequestService _service;
+        private readonly ILeaveRequestService _service;
 
-        public LeaveRequestControllers(LeaveRequestService service)
+        public LeaveRequestControllers(ILeaveRequestService service)
         {
             _service = service;
         }

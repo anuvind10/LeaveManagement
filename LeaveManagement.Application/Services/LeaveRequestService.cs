@@ -6,7 +6,7 @@ using LeaveManagement.Domain.Enums;
 
 namespace LeaveManagement.Application.Services
 {
-    public class LeaveRequestService
+    public class LeaveRequestService : ILeaveRequestService
     {
         private readonly ILeaveRequestRepository _repository;
         private readonly IValidator<CreateLeaveRequestDto> _validator;
