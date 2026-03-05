@@ -39,7 +39,6 @@ namespace LeaveManagement.Application.Services
                 LeaveType = dto.LeaveType,
                 StartDate = dto.StartDate,
                 EndDate = dto.EndDate,
-                NoOfDays = CalculateNoOfDays(dto.StartDate, dto.EndDate),
                 Reason = dto.Reason,
                 LeaveStatus = LeaveStatus.Pending,
                 LeaveAudits = new List<LeaveAudit>()
@@ -124,12 +123,6 @@ namespace LeaveManagement.Application.Services
             var leaveRequests = await _repository.GetByEmployeeIdAsync(employeeId);
 
             return MapToLeaveRequestSummaryDto(leaveRequests);
-        }
-
-        private decimal CalculateNoOfDays(DateTime startDate, DateTime endDate) 
-        {
-            var noOfDays = endDate - startDate;
-            return (decimal)(noOfDays.TotalDays + 1);
         }
 
         private LeaveRequestDto MapToLeaveRequestDto(LeaveRequest leaveRequest) {

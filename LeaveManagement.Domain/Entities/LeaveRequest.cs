@@ -11,7 +11,7 @@ namespace LeaveManagement.Domain.Entities
         public LeaveType LeaveType { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public decimal NoOfDays { get; set; }
+        public decimal NoOfDays => (decimal)((EndDate - StartDate).TotalDays + 1);
         public string? Reason { get; set; }
         public LeaveStatus LeaveStatus { get; set; }
         public ICollection<LeaveAudit> LeaveAudits { get; set; } = new List<LeaveAudit>();

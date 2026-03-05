@@ -25,8 +25,7 @@ namespace LeaveManagement.Infrastructure.Persistence
             {
                 entity.HasKey(e => e.Id);
 
-                entity.Property(e => e.NoOfDays)
-                    .HasPrecision(5, 2); // Max 999.99 days
+                entity.Ignore(e => e.NoOfDays);
 
                 entity.Property(e => e.Reason)
                     .HasMaxLength(500);
