@@ -1,6 +1,9 @@
-﻿using LeaveManagement.API.Middleware;
+﻿using FluentValidation;
+using LeaveManagement.API.Middleware;
+using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Application.Services;
+using LeaveManagement.Application.Validators;
 using LeaveManagement.Domain.Entities;
 using LeaveManagement.Infrastructure.Persistence;
 using LeaveManagement.Infrastructure.Repositories;
@@ -50,6 +53,7 @@ builder.Services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
 builder.Services.AddScoped<LeaveRequestService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<IValidator<CreateLeaveRequestDto>, CreateLeaveRequestValidator>();
 
 // Add services to the container
 builder.Services.AddControllers();

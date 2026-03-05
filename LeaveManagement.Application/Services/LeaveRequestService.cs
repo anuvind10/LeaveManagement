@@ -1,4 +1,5 @@
-﻿using LeaveManagement.Application.DTOs;
+﻿using FluentValidation;
+using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Domain.Entities;
 using LeaveManagement.Domain.Enums;
@@ -8,12 +9,28 @@ namespace LeaveManagement.Application.Services
     public class LeaveRequestService
     {
         private readonly ILeaveRequestRepository _repository;
-        public LeaveRequestService(ILeaveRequestRepository leaveRequestRepository)
+        private readonly IValidator<CreateLeaveRequestDto> _validator;
+        public LeaveRequestService(ILeaveRequestRepository leaveRequestRepository, IValidator<CreateLeaveRequestDto> validator)
         {
             _repository = leaveRequestRepository;
+            _validator = validator;
         }
 
         public async Task<LeaveRequestDto> SubmitLeaveRequestAsync(CreateLeaveRequestDto dto, int employeeId) {
+            var validationResult = await _validator.ValidateAsync(dto);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors
+                    .GroupBy(e => e.PropertyName)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(e => e.ErrorMessage).ToArray()
+                    );
+
+                throw new Exceptions.ValidationException("One or more validation errors occurred." ,errors);
+            }
+
             var leaveRequest = new LeaveRequest()
             {
                 Id = Guid.NewGuid(),
@@ -27,8 +44,6 @@ namespace LeaveManagement.Application.Services
                 LeaveStatus = LeaveStatus.Pending,
                 LeaveAudits = new List<LeaveAudit>()
             };
-
-            ValidateInputs(leaveRequest);
 
             await _repository.CreateAsync(leaveRequest);
 
@@ -115,13 +130,6 @@ namespace LeaveManagement.Application.Services
         {
             var noOfDays = endDate - startDate;
             return (decimal)(noOfDays.TotalDays + 1);
-        }
-
-        //Naming the method ValidateInputs in case we need to validate things other than start and end date
-        private void ValidateInputs(LeaveRequest leaveRequest) {
-            if (leaveRequest.EndDate < leaveRequest.StartDate) {
-                throw new ArgumentException("End Date cannot be before start date.");
-            }
         }
 
         private LeaveRequestDto MapToLeaveRequestDto(LeaveRequest leaveRequest) {

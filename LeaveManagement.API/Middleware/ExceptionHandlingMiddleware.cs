@@ -1,4 +1,5 @@
 ﻿using LeaveManagement.API.Models;
+using LeaveManagement.Application.Exceptions;
 using LeaveManagement.Domain.Exceptions;
 using System.Text.Json;
 
@@ -26,11 +27,12 @@ namespace LeaveManagement.API.Middleware
         private async Task HandleExceptions(HttpContext context, Exception ex) 
         {
             var errorResponse = new ApiErrorResponse();
-            if (ex is DomainException)
+            if (ex is ValidationException validationEx)
             {
-                errorResponse.Title = "Validation Failed";
+                errorResponse.Title = "Validation Failed";  
                 errorResponse.Status = 400;
                 errorResponse.Detail = ex.Message;
+                errorResponse.Errors = validationEx.Errors;
             }
             else if (ex is ArgumentException)
             {
@@ -42,6 +44,12 @@ namespace LeaveManagement.API.Middleware
             {
                 errorResponse.Title = "Unauthorized Access";
                 errorResponse.Status = 401;
+                errorResponse.Detail = ex.Message;
+            }
+            else if (ex is DomainException)
+            {
+                errorResponse.Title = "Validation Failed";
+                errorResponse.Status = 400;
                 errorResponse.Detail = ex.Message;
             }
             else
