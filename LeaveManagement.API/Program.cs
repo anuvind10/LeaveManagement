@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using LeaveManagement.API.Middleware;
+using LeaveManagement.API.Models;
 using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Application.Mappings;
@@ -99,6 +100,31 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+
+    if (response.StatusCode == 401)
+    {
+        response.ContentType = "application/json";
+        await response.WriteAsJsonAsync(new ApiErrorResponse
+        {
+            Title = "Authentication Required",
+            Status = 403,
+            Detail = "You need to authenticate first before accessing this resource."
+        });
+    }
+    else if (response.StatusCode == 403)
+    {
+        response.ContentType = "application/json";
+        await response.WriteAsJsonAsync(new ApiErrorResponse
+        {
+            Title = "Forbidden",
+            Status = 403,
+            Detail = "You do not have permission to access this resource."
+        });
+    }
+});
 app.UseAuthentication();
 app.UseAuthorization();
 
