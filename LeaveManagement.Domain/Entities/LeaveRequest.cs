@@ -1,5 +1,6 @@
 ﻿using LeaveManagement.Domain.Enums;
 using LeaveManagement.Domain.Exceptions;
+using System.ComponentModel.DataAnnotations;
 
 namespace LeaveManagement.Domain.Entities
 {
@@ -14,6 +15,7 @@ namespace LeaveManagement.Domain.Entities
         public decimal NoOfDays => (decimal)((EndDate - StartDate).TotalDays + 1);
         public string? Reason { get; set; }
         public LeaveStatus LeaveStatus { get; set; }
+        public byte[]? RowVersion { get; set; }
         public ICollection<LeaveAudit> LeaveAudits { get; set; } = new List<LeaveAudit>();
         public void Approve(int auditorId, string? comments) {
             if (LeaveStatus != LeaveStatus.Pending)

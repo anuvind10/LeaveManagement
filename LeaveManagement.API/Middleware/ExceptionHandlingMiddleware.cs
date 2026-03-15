@@ -1,6 +1,7 @@
 ﻿using LeaveManagement.API.Models;
 using LeaveManagement.Application.Exceptions;
 using LeaveManagement.Domain.Exceptions;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace LeaveManagement.API.Middleware
@@ -29,7 +30,7 @@ namespace LeaveManagement.API.Middleware
             var errorResponse = new ApiErrorResponse();
             if (ex is ValidationException validationEx)
             {
-                errorResponse.Title = "Validation Failed";  
+                errorResponse.Title = "Validation Failed";
                 errorResponse.Status = 400;
                 errorResponse.Detail = ex.Message;
                 errorResponse.Errors = validationEx.Errors;
@@ -45,6 +46,12 @@ namespace LeaveManagement.API.Middleware
                 errorResponse.Title = "Unauthorized Access";
                 errorResponse.Status = 401;
                 errorResponse.Detail = ex.Message;
+            }
+            else if (ex is DbUpdateConcurrencyException)
+            {
+                errorResponse.Title = "Unable to update resource";
+                errorResponse.Status = 409;
+                errorResponse.Detail = "The resource was modified by another user. Please retrieve the latest version and try again.";
             }
             else if (ex is DomainException)
             {

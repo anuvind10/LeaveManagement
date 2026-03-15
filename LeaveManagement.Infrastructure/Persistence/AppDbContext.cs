@@ -24,11 +24,14 @@ namespace LeaveManagement.Infrastructure.Persistence
             modelBuilder.Entity<LeaveRequest>(entity =>
             {
                 entity.HasKey(e => e.Id);
-
+                
                 entity.Ignore(e => e.NoOfDays);
 
                 entity.Property(e => e.Reason)
                     .HasMaxLength(500);
+
+                entity.Property(e => e.RowVersion)
+                    .IsRowVersion();
 
                 // Configure relationship: LeaveRequest has many LeaveAudits
                 entity.HasMany(e => e.LeaveAudits)
