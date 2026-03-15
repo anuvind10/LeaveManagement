@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using LeaveManagement.API.Middleware;
 using LeaveManagement.API.Models;
+using LeaveManagement.API.Services;
 using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Application.Mappings;
@@ -56,6 +57,8 @@ builder.Services.AddScoped<ILeaveRequestService, LeaveRequestService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IValidator<CreateLeaveRequestDto>, CreateLeaveRequestValidator>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(LeaveRequestProfile).Assembly));
 
 // Add services to the container
