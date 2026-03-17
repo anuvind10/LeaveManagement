@@ -44,6 +44,11 @@ namespace LeaveManagement.API.Controllers
         {
             var result = await _service.GetByEmployeeIdAsync(employeeId);
 
+            if(result == null)
+            {
+                return NotFound();
+            }
+
             return Ok(result);
         }
 

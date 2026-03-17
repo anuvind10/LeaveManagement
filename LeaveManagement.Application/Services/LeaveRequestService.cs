@@ -12,11 +12,16 @@ namespace LeaveManagement.Application.Services
         private readonly ILeaveRequestRepository _repository;
         private readonly IValidator<CreateLeaveRequestDto> _validator;
         private readonly IMapper _mapper;
-        public LeaveRequestService(ILeaveRequestRepository leaveRequestRepository, IValidator<CreateLeaveRequestDto> validator, IMapper mapper)
+        private readonly ICurrentUserService _currentUserService;
+        public LeaveRequestService(ILeaveRequestRepository leaveRequestRepository, 
+                                    IValidator<CreateLeaveRequestDto> validator, 
+                                    IMapper mapper,
+                                    ICurrentUserService currentUserService)
         {
             _repository = leaveRequestRepository;
             _validator = validator;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<LeaveRequestDto> SubmitLeaveRequestAsync(CreateLeaveRequestDto dto, int employeeId) {
@@ -56,7 +61,11 @@ namespace LeaveManagement.Application.Services
         {
             var leaveRequest = await _repository.GetByIdAsync(id);
 
-            if (leaveRequest == null)
+            if (leaveRequest == null ||
+                (!_currentUserService.IsInRole("Manager") && 
+                 !_currentUserService.IsInRole("HR") &&
+                 leaveRequest.EmployeeId != _currentUserService.UserId)
+                )
             {
                 return null;
             }
@@ -121,10 +130,16 @@ namespace LeaveManagement.Application.Services
             return _mapper.Map<IEnumerable<LeaveRequestSummaryDto>>(leaveRequests);
         }
 
-        public async Task<IEnumerable<LeaveRequestSummaryDto>> GetByEmployeeIdAsync(int employeeId)
+        public async Task<IEnumerable<LeaveRequestSummaryDto>?> GetByEmployeeIdAsync(int employeeId)
         {
-            var leaveRequests = await _repository.GetByEmployeeIdAsync(employeeId);
+            if (!_currentUserService.IsInRole("Manager") &&
+                 !_currentUserService.IsInRole("HR") &&
+                 employeeId != _currentUserService.UserId)
+            {
+                return null;
+            }
 
+            var leaveRequests = await _repository.GetByEmployeeIdAsync(employeeId);
             return _mapper.Map<IEnumerable<LeaveRequestSummaryDto>>(leaveRequests);
         }
     }
