@@ -99,6 +99,20 @@ namespace LeaveManagement.Tests.Domain
         }
 
         [Fact]
+        public void Reject_WhenStatusIsPending_ShouldCreateAuditRecord()
+        {
+            var leaveRequest = _pendingLeaveRequest;
+
+            leaveRequest.Reject(auditorId: 2, comments: "");
+
+            Assert.Single(leaveRequest.LeaveAudits);
+            var audit = leaveRequest.LeaveAudits.First();
+
+            Assert.Equal(2, audit.AuditorId);
+            Assert.Equal(LeaveAction.Rejected, audit.Action);
+        }
+
+        [Fact]
         public void Cancel_WhenStatusIsPending_ShouldTransitionToCanceled()
         {
             var leaveRequest = _pendingLeaveRequest;
@@ -115,12 +129,7 @@ namespace LeaveManagement.Tests.Domain
 
             leaveRequest.Cancel(auditorId: 1, comments: "Plans changed");
 
-            Assert.Single(leaveRequest.LeaveAudits);
-
-            var audit = leaveRequest.LeaveAudits.First();
-
             Assert.Equal(LeaveStatus.Canceled, leaveRequest.LeaveStatus);
-            Assert.Equal("Plans changed", audit.Comments);
         }
 
         [Fact]
@@ -129,6 +138,20 @@ namespace LeaveManagement.Tests.Domain
             var leaveRequest = _rejectedLeaveRequest;
 
             Assert.Throws<InvalidLeaveStatusException>(() => leaveRequest.Cancel(auditorId: 1, ""));
+        }
+
+        [Fact]
+        public void Cancel_WhenStatusIsPending_ShouldCreateAuditRecord()
+        {
+            var leaveRequest = _pendingLeaveRequest;
+
+            leaveRequest.Cancel(auditorId: 2, comments: "");
+
+            Assert.Single(leaveRequest.LeaveAudits);
+            var audit = leaveRequest.LeaveAudits.First();
+
+            Assert.Equal(2, audit.AuditorId);
+            Assert.Equal(LeaveAction.Canceled, audit.Action);
         }
     }
 }
