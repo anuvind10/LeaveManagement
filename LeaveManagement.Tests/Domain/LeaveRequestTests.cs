@@ -8,6 +8,7 @@ namespace LeaveManagement.Tests.Domain
     {
         private readonly LeaveRequest _pendingLeaveRequest;
         private readonly LeaveRequest _approvedLeaveRequest;
+        private readonly LeaveRequest _rejectedLeaveRequest;
 
         public LeaveRequestTests()
         {
@@ -30,7 +31,18 @@ namespace LeaveManagement.Tests.Domain
                 LeaveType = LeaveType.Annual,
                 StartDate = DateTime.UtcNow,
                 EndDate = DateTime.UtcNow.AddDays(5),
-                LeaveStatus = LeaveStatus.Canceled,
+                LeaveStatus = LeaveStatus.Approved,
+            };
+
+            _rejectedLeaveRequest = new LeaveRequest
+            {
+                Id = Guid.NewGuid(),
+                SubmittedDate = DateTime.UtcNow,
+                EmployeeId = 2,
+                LeaveType = LeaveType.Annual,
+                StartDate = DateTime.UtcNow,
+                EndDate = DateTime.UtcNow.AddDays(5),
+                LeaveStatus = LeaveStatus.Rejected,
             };
         }
 
@@ -66,6 +78,57 @@ namespace LeaveManagement.Tests.Domain
             var leaveRequest = _approvedLeaveRequest;
 
             Assert.Throws<InvalidLeaveStatusException>(() => leaveRequest.Approve(2, ""));
+        }
+
+        [Fact]
+        public void Reject_WhenStatusIsPending_ShouldTransitionToRejected()
+        {
+            var leaveRequest = _pendingLeaveRequest;
+
+            leaveRequest.Reject(auditorId: 3, comments: "Cannot approve");
+
+            Assert.Equal(LeaveStatus.Rejected, leaveRequest.LeaveStatus);
+        }
+
+        [Fact]
+        public void Reject_WhenStatusIsNotPending_ShouldThrowInvalidLeaveStatusException()
+        {
+            var leaveRequest = _approvedLeaveRequest;
+
+            Assert.Throws<InvalidLeaveStatusException>(() => leaveRequest.Reject(auditorId: 3, comments: "Sorry, rejecting"));
+        }
+
+        [Fact]
+        public void Cancel_WhenStatusIsPending_ShouldTransitionToCanceled()
+        {
+            var leaveRequest = _pendingLeaveRequest;
+
+            leaveRequest.Cancel(auditorId: 1, comments: "wrong leave entry");
+
+            Assert.Equal(LeaveStatus.Canceled, leaveRequest.LeaveStatus);
+        }
+
+        [Fact]
+        public void Cancel_WhenStatusIsNotPending_ShouldTransitionToCanceled()
+        {
+            var leaveRequest = _approvedLeaveRequest;
+
+            leaveRequest.Cancel(auditorId: 1, comments: "Plans changed");
+
+            Assert.Single(leaveRequest.LeaveAudits);
+
+            var audit = leaveRequest.LeaveAudits.First();
+
+            Assert.Equal(LeaveStatus.Canceled, leaveRequest.LeaveStatus);
+            Assert.Equal("Plans changed", audit.Comments);
+        }
+
+        [Fact]
+        public void Cancel_WhenStatusIsRejected_ShouldThrowInvalidLeaveStatusException()
+        {
+            var leaveRequest = _rejectedLeaveRequest;
+
+            Assert.Throws<InvalidLeaveStatusException>(() => leaveRequest.Cancel(auditorId: 1, ""));
         }
     }
 }
