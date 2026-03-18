@@ -73,7 +73,7 @@ namespace LeaveManagement.Tests.Domain
         }
 
         [Fact]
-        public void Approve_WhenStatusIsNotPending_ShouldThrowInvalidLeaveStatusException()
+        public void Approve_WhenStatusIsApproved_ShouldThrowInvalidLeaveStatusException()
         {
             var leaveRequest = _approvedLeaveRequest;
 
@@ -91,7 +91,7 @@ namespace LeaveManagement.Tests.Domain
         }
 
         [Fact]
-        public void Reject_WhenStatusIsNotPending_ShouldThrowInvalidLeaveStatusException()
+        public void Reject_WhenStatusIsApproved_ShouldThrowInvalidLeaveStatusException()
         {
             var leaveRequest = _approvedLeaveRequest;
 
@@ -123,7 +123,7 @@ namespace LeaveManagement.Tests.Domain
         }
 
         [Fact]
-        public void Cancel_WhenStatusIsNotPending_ShouldTransitionToCanceled()
+        public void Cancel_WhenStatusIsApproved_ShouldTransitionToCanceled()
         {
             var leaveRequest = _approvedLeaveRequest;
 
@@ -152,6 +152,21 @@ namespace LeaveManagement.Tests.Domain
 
             Assert.Equal(2, audit.AuditorId);
             Assert.Equal(LeaveAction.Canceled, audit.Action);
+        }
+
+        [Fact]
+        public void Cancel_WhenStatusIsApproved_ShouldCreateAuditRecord()
+        {
+            var leaveRequest = _approvedLeaveRequest;
+
+            leaveRequest.Cancel(auditorId: 1, comments: "Cancelling");
+
+            Assert.Single(leaveRequest.LeaveAudits);
+            var audit = leaveRequest.LeaveAudits.First();
+
+            Assert.Equal(1, audit.AuditorId);
+            Assert.Equal(LeaveAction.Canceled, audit.Action);
+            Assert.Equal("Cancelling", audit.Comments);
         }
     }
 }
