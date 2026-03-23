@@ -6,9 +6,7 @@ using LeaveManagement.Application.Mappings;
 using LeaveManagement.Application.Services;
 using LeaveManagement.Domain.Entities;
 using LeaveManagement.Domain.Enums;
-using Microsoft.IdentityModel.Tokens;
 using Moq;
-using System.Collections.Immutable;
 
 namespace LeaveManagement.Tests.Application
 {
@@ -265,6 +263,5 @@ namespace LeaveManagement.Tests.Application
                 EndDate = DateTime.Now.AddDays(2),
             };
         }
-
     }
 }
