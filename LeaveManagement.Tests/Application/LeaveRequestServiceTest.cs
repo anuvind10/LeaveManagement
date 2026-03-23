@@ -86,7 +86,7 @@ namespace LeaveManagement.Tests.Application
                     new FluentValidation.Results.ValidationFailure("StartDate", "Start date must be in the future.")
                 });
 
-            _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateLeaveRequestDto>()))
+            _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateLeaveRequestDto>(), default))
                 .ReturnsAsync(validationResult);
 
             await Assert.ThrowsAsync<LeaveManagement.Application.Exceptions.ValidationException>
@@ -120,6 +120,28 @@ namespace LeaveManagement.Tests.Application
             Assert.Equal(LeaveStatus.Pending, result.LeaveStatus);
         }
 
+        [Fact]
+        public async Task ApproveLeaveRequestAsync_WhenRequestDoesNotExist_ShouldReturnNull()
+        {
+            _mockRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+                   .ReturnsAsync((LeaveRequest?)null);
+
+            var result = await _service.ApproveLeaveRequestAsync(new Guid(), 2, "");
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task ApproveLeaveRequestAsync_WhenRequestExists_ShouldCallUpdateAsync()
+        {
+            var leaveRequest = CreateLeaveRequest(1);
+            _mockRepo.Setup(r => r.GetByIdAsync(leaveRequest.Id))
+                    .ReturnsAsync(leaveRequest);
+
+            var result = await _service.ApproveLeaveRequestAsync(leaveRequest.Id, 2, "");
+
+            _mockRepo.Verify(r => r.UpdateAsync(leaveRequest), Times.Once);
+        }
+
         private static LeaveRequest CreateLeaveRequest(int employeeId)
         {
             return new LeaveRequest()
@@ -138,8 +160,8 @@ namespace LeaveManagement.Tests.Application
             return new CreateLeaveRequestDto()
             {
                 LeaveType = LeaveType.Sick,
-                StartDate = DateTime.Now.AddDays(-1),
-                EndDate = DateTime.Now.AddDays(1),
+                StartDate = DateTime.Now.AddDays(1),
+                EndDate = DateTime.Now.AddDays(2),
             };
         }
 
