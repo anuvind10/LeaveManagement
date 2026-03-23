@@ -8,6 +8,7 @@ using LeaveManagement.Domain.Entities;
 using LeaveManagement.Domain.Enums;
 using Microsoft.IdentityModel.Tokens;
 using Moq;
+using System.Collections.Immutable;
 
 namespace LeaveManagement.Tests.Application
 {
@@ -185,6 +186,61 @@ namespace LeaveManagement.Tests.Application
             var result = await _service.CancelLeaveRequestAsync(leaveRequest.Id, 1, "");
 
             _mockRepo.Verify(r => r.UpdateAsync(leaveRequest), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetByEmployeeIdAsync_WhenEmployeeRequestsOwnRecords_ShouldReturnDtos()
+        {
+            var leaveRequest = CreateLeaveRequest(1);
+            var leaveRequests = new List<LeaveRequest> { leaveRequest };
+            _mockRepo.Setup(r => r.GetByEmployeeIdAsync(leaveRequest.EmployeeId))
+                    .ReturnsAsync(leaveRequests);
+            _mockCurrentUser.Setup(cu => cu.UserId).Returns(1);
+            _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(false);
+
+            var result = await _service.GetByEmployeeIdAsync(1);
+
+            Assert.Single(result);
+
+            var request = result.Single();
+
+            Assert.Equal(leaveRequest.Id, request.Id);
+            Assert.Equal(LeaveType.Sick, request.LeaveType);
+            Assert.Equal(LeaveStatus.Pending, request.LeaveStatus);
+        }
+
+        [Fact]
+        public async Task GetByEmployeeIdAsync_WhenEmployeeRequestsAnotherEmployeesRecords_ShouldReturnNull()
+        {
+            _mockCurrentUser.Setup(cu => cu.UserId).Returns(1);
+            _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(false);
+
+            var result = await _service.GetByEmployeeIdAsync(2);
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetByEmployeeIdAsync_WhenManagerRequestsAnyEmployeesRecords_ShouldReturnDtos()
+        {
+            var leaveRequest = CreateLeaveRequest(1);
+            var leaveRequests = new List<LeaveRequest> { leaveRequest };
+            _mockRepo.Setup(r => r.GetByEmployeeIdAsync(leaveRequest.EmployeeId))
+                    .ReturnsAsync(leaveRequests);
+
+            _mockCurrentUser.Setup(cu => cu.UserId).Returns(2);
+            _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(true);
+
+            var result = await _service.GetByEmployeeIdAsync(1);
+
+            Assert.Single(result);
+
+            var request = result.Single();
+
+            Assert.Equal(leaveRequest.Id, request.Id);
+            Assert.Equal(1, leaveRequest.EmployeeId);
+            Assert.Equal(LeaveType.Sick, request.LeaveType);
+            Assert.Equal(LeaveStatus.Pending, request.LeaveStatus);
         }
 
         private static LeaveRequest CreateLeaveRequest(int employeeId)
