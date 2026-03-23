@@ -6,6 +6,7 @@ using LeaveManagement.Application.Mappings;
 using LeaveManagement.Application.Services;
 using LeaveManagement.Domain.Entities;
 using LeaveManagement.Domain.Enums;
+using Microsoft.IdentityModel.Tokens;
 using Moq;
 
 namespace LeaveManagement.Tests.Application
@@ -74,6 +75,51 @@ namespace LeaveManagement.Tests.Application
             Assert.Null(result);
         }
 
+        [Fact]
+        public async Task SubmitLeaveRequestAsync_WhenValidationFails_ShouldThrowValidationException()
+        {
+            var dto = CreateLeaveRequestDto();
+
+            var validationResult = new FluentValidation.Results.ValidationResult(
+                new List<FluentValidation.Results.ValidationFailure>
+                {
+                    new FluentValidation.Results.ValidationFailure("StartDate", "Start date must be in the future.")
+                });
+
+            _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateLeaveRequestDto>()))
+                .ReturnsAsync(validationResult);
+
+            await Assert.ThrowsAsync<LeaveManagement.Application.Exceptions.ValidationException>
+                (() =>  _service.SubmitLeaveRequestAsync(dto, 1));
+        }
+
+        [Fact]
+        public async Task SubmitLeaveRequestAsync_WhenValidationPasses_ShouldCallCreateAsync()
+        {
+            var dto = CreateLeaveRequestDto();
+
+            _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateLeaveRequestDto>()))
+                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+            
+            var result = await _service.SubmitLeaveRequestAsync(dto, 1);
+            
+            _mockRepo.Verify(r => r.CreateAsync(It.IsAny<LeaveRequest>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task SubmitLeaveRequestAsync_WhenValidationPasses_ShouldReturnDto()
+        {
+            var dto = CreateLeaveRequestDto();
+
+            _mockValidator.Setup(v => v.ValidateAsync(It.IsAny<CreateLeaveRequestDto>()))
+                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
+
+            var result = await _service.SubmitLeaveRequestAsync(dto, 1);
+
+            Assert.Equal(LeaveType.Sick, result.LeaveType);
+            Assert.Equal(LeaveStatus.Pending, result.LeaveStatus);
+        }
+
         private static LeaveRequest CreateLeaveRequest(int employeeId)
         {
             return new LeaveRequest()
@@ -85,6 +131,16 @@ namespace LeaveManagement.Tests.Application
                 StartDate = DateTime.UtcNow.AddDays(1),
                 EndDate = DateTime.UtcNow.AddDays(2),
             };        
+        }
+
+        private static CreateLeaveRequestDto CreateLeaveRequestDto()
+        {
+            return new CreateLeaveRequestDto()
+            {
+                LeaveType = LeaveType.Sick,
+                StartDate = DateTime.Now.AddDays(-1),
+                EndDate = DateTime.Now.AddDays(1),
+            };
         }
 
     }
