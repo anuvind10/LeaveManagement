@@ -164,6 +164,29 @@ namespace LeaveManagement.Tests.Application
             _mockRepo.Verify(r => r.UpdateAsync(leaveRequest), Times.Once);
         }
 
+        [Fact]
+        public async Task CancelLeaveRequestAsync_WhenRequestDoesNotExist_ShouldReturnNull()
+        {
+            _mockRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>()))
+                    .ReturnsAsync((LeaveRequest?)null);
+
+            var result = await _service.CancelLeaveRequestAsync(Guid.NewGuid(), 1, "");
+
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task CancelLeaveRequestAsync_WhenRequestExists_ShouldCallUpdateAsync()
+        {
+            var leaveRequest = CreateLeaveRequest(1);
+            _mockRepo.Setup(r => r.GetByIdAsync(leaveRequest.Id))
+                    .ReturnsAsync(leaveRequest);
+
+            var result = await _service.CancelLeaveRequestAsync(leaveRequest.Id, 1, "");
+
+            _mockRepo.Verify(r => r.UpdateAsync(leaveRequest), Times.Once);
+        }
+
         private static LeaveRequest CreateLeaveRequest(int employeeId)
         {
             return new LeaveRequest()
