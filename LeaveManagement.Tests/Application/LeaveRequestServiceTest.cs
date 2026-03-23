@@ -5,6 +5,7 @@ using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Application.Mappings;
 using LeaveManagement.Application.Services;
 using LeaveManagement.Domain.Entities;
+using LeaveManagement.Domain.Enums;
 using Moq;
 
 namespace LeaveManagement.Tests.Application
@@ -43,6 +44,48 @@ namespace LeaveManagement.Tests.Application
             var result = await _service.GetByIdAsync(Guid.NewGuid());
             Assert.Null(result);
         }
-        
+
+        [Fact]
+        public async Task GetByIdAsync_WhenRequestExistsAndBelongsToCurrentUser_ShouldReturnDto()
+        {
+            var leaveRequest = CreateLeaveRequest(1);
+            _mockRepo.Setup(r => r.GetByIdAsync(leaveRequest.Id))
+                    .ReturnsAsync(leaveRequest);
+            _mockCurrentUser.Setup(cu => cu.UserId).Returns(1);
+            _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(true);
+
+            var result = await _service.GetByIdAsync(leaveRequest.Id);
+            Assert.NotNull(result);
+            Assert.Equal(leaveRequest.Id, result.Id);
+            Assert.Equal(LeaveStatus.Pending, result.LeaveStatus);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_WhenRequestExistsBelongsToAnotherEmployee_ShouldReturnNull()
+        {
+
+            var leaveRequest = CreateLeaveRequest(2);
+            _mockRepo.Setup(r => r.GetByIdAsync(leaveRequest.Id))
+                   .ReturnsAsync(leaveRequest);
+            _mockCurrentUser.Setup(cu => cu.UserId).Returns(1);
+            _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(false);
+
+            var result = await _service.GetByIdAsync(leaveRequest.Id);
+            Assert.Null(result);
+        }
+
+        private static LeaveRequest CreateLeaveRequest(int employeeId)
+        {
+            return new LeaveRequest()
+            {
+                Id = Guid.NewGuid(),
+                SubmittedDate = DateTime.UtcNow,
+                EmployeeId = employeeId,
+                LeaveType = LeaveType.Sick,
+                StartDate = DateTime.UtcNow.AddDays(1),
+                EndDate = DateTime.UtcNow.AddDays(2),
+            };        
+        }
+
     }
 }
