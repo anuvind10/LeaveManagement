@@ -77,8 +77,8 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IValidator<CreateLeaveRequestDto>, CreateLeaveRequestValidator>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+builder.Services.AddScoped<ILeaveRequestMapper, LeaveRequestMapper>();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddAutoMapper(cfg => cfg.AddMaps(typeof(LeaveRequestProfile).Assembly));
 
 // Add services to the container
 builder.Services.AddControllers();

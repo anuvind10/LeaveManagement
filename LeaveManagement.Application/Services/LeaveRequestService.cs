@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Domain.Entities;
@@ -11,11 +10,11 @@ namespace LeaveManagement.Application.Services
     {
         private readonly ILeaveRequestRepository _repository;
         private readonly IValidator<CreateLeaveRequestDto> _validator;
-        private readonly IMapper _mapper;
+        private readonly ILeaveRequestMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
         public LeaveRequestService(ILeaveRequestRepository leaveRequestRepository, 
                                     IValidator<CreateLeaveRequestDto> validator, 
-                                    IMapper mapper,
+                                    ILeaveRequestMapper mapper,
                                     ICurrentUserService currentUserService)
         {
             _repository = leaveRequestRepository;
@@ -54,7 +53,7 @@ namespace LeaveManagement.Application.Services
 
             await _repository.CreateAsync(leaveRequest);
 
-            return _mapper.Map<LeaveRequestDto>(leaveRequest);
+            return _mapper.ToDto(leaveRequest);
         }
 
         public async Task<LeaveRequestDto?> GetByIdAsync(Guid id)
@@ -70,7 +69,7 @@ namespace LeaveManagement.Application.Services
                 return null;
             }
 
-            return _mapper.Map<LeaveRequestDto>(leaveRequest);
+            return _mapper.ToDto(leaveRequest);
         }
 
         public async Task<LeaveRequestDto?> ApproveLeaveRequestAsync(Guid id, int auditorId, string? comments) {
@@ -84,7 +83,7 @@ namespace LeaveManagement.Application.Services
             leaveRequest.Approve(auditorId, comments);
             await _repository.UpdateAsync(leaveRequest);
 
-            return _mapper.Map<LeaveRequestDto>(leaveRequest);
+            return _mapper.ToDto(leaveRequest);
         }
 
         public async Task<LeaveRequestDto?> RejectLeaveRequestAsync(Guid id, int auditorId, string comments)
@@ -99,7 +98,7 @@ namespace LeaveManagement.Application.Services
             leaveRequest.Reject(auditorId, comments);
             await _repository.UpdateAsync(leaveRequest);
 
-            return _mapper.Map<LeaveRequestDto>(leaveRequest);
+            return _mapper.ToDto(leaveRequest);
         }
 
         public async Task<LeaveRequestDto?> CancelLeaveRequestAsync(Guid id, int auditorId, string? comments)
@@ -114,20 +113,20 @@ namespace LeaveManagement.Application.Services
             leaveRequest.Cancel(auditorId, comments);
             await _repository.UpdateAsync(leaveRequest);
 
-            return _mapper.Map<LeaveRequestDto>(leaveRequest);
+            return _mapper.ToDto(leaveRequest);
         }
 
         public async Task<IEnumerable<LeaveRequestSummaryDto>> GetAllAsync() {
             var leaveRequests = await _repository.GetAllAsync();
 
-            return _mapper.Map<IEnumerable<LeaveRequestSummaryDto>>(leaveRequests);
+            return _mapper.ToSummaryDtoList(leaveRequests);
         }
 
         public async Task<IEnumerable<LeaveRequestSummaryDto>> GetByStatusAsync(LeaveStatus status)
         {
             var leaveRequests = await _repository.GetByStatusAsync(status);
 
-            return _mapper.Map<IEnumerable<LeaveRequestSummaryDto>>(leaveRequests);
+            return _mapper.ToSummaryDtoList(leaveRequests);
         }
 
         public async Task<IEnumerable<LeaveRequestSummaryDto>?> GetByEmployeeIdAsync(int employeeId)
@@ -140,7 +139,7 @@ namespace LeaveManagement.Application.Services
             }
 
             var leaveRequests = await _repository.GetByEmployeeIdAsync(employeeId);
-            return _mapper.Map<IEnumerable<LeaveRequestSummaryDto>>(leaveRequests);
+            return _mapper.ToSummaryDtoList(leaveRequests);
         }
     }
 }

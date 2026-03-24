@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using FluentValidation;
+﻿using FluentValidation;
 using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Application.Mappings;
@@ -12,7 +11,6 @@ namespace LeaveManagement.Tests.Application
 {
     public class LeaveRequestServiceTest
     {
-        private readonly IMapper _mapper;
         private readonly Mock<ILeaveRequestRepository> _mockRepo;
         private readonly Mock<IValidator<CreateLeaveRequestDto>> _mockValidator;
         private readonly Mock<ICurrentUserService> _mockCurrentUser;
@@ -22,14 +20,10 @@ namespace LeaveManagement.Tests.Application
             _mockRepo = new Mock<ILeaveRequestRepository>();
             _mockValidator = new Mock<IValidator<CreateLeaveRequestDto>>();
             _mockCurrentUser = new Mock<ICurrentUserService>();
-            _mapper = new MapperConfiguration(cfg =>
-            {
-                cfg.AddMaps(typeof(LeaveRequestProfile).Assembly);
-            }, Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance).CreateMapper();
-
+            
             _service = new LeaveRequestService(_mockRepo.Object,
                                                   _mockValidator.Object,
-                                                  _mapper,
+                                                  new LeaveRequestMapper(),
                                                   _mockCurrentUser.Object);
         }
 
