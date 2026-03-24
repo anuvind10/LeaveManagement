@@ -121,6 +121,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseStatusCodePages(async context =>
 {
