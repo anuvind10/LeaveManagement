@@ -5,7 +5,6 @@ using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.ResponseCaching;
 using System.Security.Claims;
 
 namespace LeaveManagement.API.Controllers
