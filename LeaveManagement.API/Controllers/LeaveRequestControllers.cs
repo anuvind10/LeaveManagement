@@ -1,9 +1,11 @@
-﻿using LeaveManagement.Application.DTOs;
+﻿using LeaveManagement.API.Models;
+using LeaveManagement.Application.Common;
+using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Interfaces;
-using LeaveManagement.Application.Services;
 using LeaveManagement.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.ResponseCaching;
 using System.Security.Claims;
 
 namespace LeaveManagement.API.Controllers
@@ -54,19 +56,19 @@ namespace LeaveManagement.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Manager,HR")]
-        public async Task<ActionResult<IEnumerable<LeaveRequestSummaryDto>>> GetAll(LeaveStatus? status)
+        public async Task<ActionResult<PaginationParams>> GetAll(LeaveStatus? status, [FromQuery] PaginationParams paginationParams)
         {
-            IEnumerable<LeaveRequestSummaryDto> result;
-            if (status.HasValue)
-            {
-                result = await _service.GetByStatusAsync(status.Value);
-            }
-            else
-            {
-                result = await _service.GetAllAsync();
-            }
+            var result = await _service.GetAllAsync(status, paginationParams.PageSize, paginationParams.Page);
 
-            return Ok(result);
+            var response = new PagedResponse() 
+            {
+                dtos = result.Item2,
+                TotalCount = result.Item1,
+                PageSize = paginationParams.PageSize,
+                Page = paginationParams.Page,
+            };
+
+            return Ok(response);    ;
         }
 
         [HttpPut("{id}/approve")]

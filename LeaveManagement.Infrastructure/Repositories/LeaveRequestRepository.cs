@@ -15,11 +15,26 @@ namespace LeaveManagement.Infrastructure.Repositories
             _context = context;
         }
         
-        public async Task<IEnumerable<LeaveRequest>> GetAllAsync()
+        public async Task<(int, IEnumerable<LeaveRequest>)> GetAllAsync(LeaveStatus? status, int pageSize, int page)
         {
-            return await _context.LeaveRequests 
+            var query = _context.LeaveRequests
                 .Include(lr => lr.LeaveAudits)
+                .OrderBy(lr => lr.Id)
+                .AsQueryable();
+
+            if (status.HasValue)
+            {
+                query = query.Where(lr => lr.LeaveStatus == status);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return new (totalCount, items);
         }
 
         public async Task<IEnumerable<LeaveRequest>> GetByEmployeeIdAsync(int employeeId)
@@ -35,14 +50,6 @@ namespace LeaveManagement.Infrastructure.Repositories
             return await _context.LeaveRequests
                 .Include(lr => lr.LeaveAudits)
                 .FirstOrDefaultAsync(lr => lr.Id == id);
-        }
-
-        public async Task<IEnumerable<LeaveRequest>> GetByStatusAsync(LeaveStatus status)
-        {
-            return await _context.LeaveRequests
-                .Include(lr => lr.LeaveAudits)
-                .Where(lr => lr.LeaveStatus == status)
-                .ToListAsync();
         }
         public async Task CreateAsync(LeaveRequest leaveRequest)
         {

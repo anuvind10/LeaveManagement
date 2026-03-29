@@ -116,17 +116,12 @@ namespace LeaveManagement.Application.Services
             return _mapper.ToDto(leaveRequest);
         }
 
-        public async Task<IEnumerable<LeaveRequestSummaryDto>> GetAllAsync() {
-            var leaveRequests = await _repository.GetAllAsync();
+        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, int pageSize, int page) {
+            var result = await _repository.GetAllAsync(status, pageSize, page);
 
-            return _mapper.ToSummaryDtoList(leaveRequests);
-        }
+            var summaryDtos = _mapper.ToSummaryDtoList(result.Item2);
 
-        public async Task<IEnumerable<LeaveRequestSummaryDto>> GetByStatusAsync(LeaveStatus status)
-        {
-            var leaveRequests = await _repository.GetByStatusAsync(status);
-
-            return _mapper.ToSummaryDtoList(leaveRequests);
+            return new (result.Item1, summaryDtos);
         }
 
         public async Task<IEnumerable<LeaveRequestSummaryDto>?> GetByEmployeeIdAsync(int employeeId)
