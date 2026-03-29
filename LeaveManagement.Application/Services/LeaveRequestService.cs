@@ -130,7 +130,7 @@ namespace LeaveManagement.Application.Services
                  !_currentUserService.IsInRole("HR") &&
                  employeeId != _currentUserService.UserId)
             {
-                throw new ForbiddenAccessException("You are not authorized to access this resource.");
+                throw new ForbiddenAccessException("You do not have permission to access this resource.");
             }
 
             var leaveRequests = await _repository.GetByEmployeeIdAsync(employeeId);
