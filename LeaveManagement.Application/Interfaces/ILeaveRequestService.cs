@@ -11,6 +11,6 @@ namespace LeaveManagement.Application.Interfaces
         Task<LeaveRequestDto?> RejectLeaveRequestAsync(Guid id, int auditorId, string comments);
         Task<LeaveRequestDto?> CancelLeaveRequestAsync(Guid id, int auditorId, string? comments);
         Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, int pageSize, int page);
-        Task<IEnumerable<LeaveRequestSummaryDto>?> GetByEmployeeIdAsync(int employeeId);
+        Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, int pageSize, int page);
     }
 }

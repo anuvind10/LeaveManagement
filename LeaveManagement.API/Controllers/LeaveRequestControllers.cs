@@ -42,16 +42,19 @@ namespace LeaveManagement.API.Controllers
         }
 
         [HttpGet("employee/{employeeId}")]
-        public async Task<ActionResult<IEnumerable<LeaveRequestSummaryDto>>> GetByEmployeeId(int employeeId)
+        public async Task<ActionResult<(int, IEnumerable<LeaveRequestSummaryDto>)>> GetByEmployeeId(int employeeId, [FromQuery] PaginationParams paginationParams)
         {
-            var result = await _service.GetByEmployeeIdAsync(employeeId);
+            var result = await _service.GetByEmployeeIdAsync(employeeId, paginationParams.PageSize, paginationParams.Page);
 
-            if(result == null)
+            var response = new PagedResponse()
             {
-                return NotFound();
-            }
+                dtos = result.Item2,
+                TotalCount = result.Item1,
+                PageSize = paginationParams.PageSize,
+                Page = paginationParams.Page,
+            };
 
-            return Ok(result);
+            return Ok(response);
         }
 
         [HttpGet]

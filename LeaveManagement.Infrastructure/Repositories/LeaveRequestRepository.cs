@@ -34,15 +34,24 @@ namespace LeaveManagement.Infrastructure.Repositories
                 .Take(pageSize)
                 .ToListAsync();
 
-            return new (totalCount, items);
+            return (totalCount, items);
         }
 
-        public async Task<IEnumerable<LeaveRequest>> GetByEmployeeIdAsync(int employeeId)
+        public async Task<(int, IEnumerable<LeaveRequest>)> GetByEmployeeIdAsync(int employeeId, int pageSize, int page)
         {
-            return await _context.LeaveRequests
+            var query = _context.LeaveRequests
                 .Include(lr => lr.LeaveAudits)
                 .Where(lr => lr.EmployeeId == employeeId)
+                .AsQueryable();
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
+
+            return (totalCount, items);
         }
 
         public async Task<LeaveRequest?> GetByIdAsync(Guid id)

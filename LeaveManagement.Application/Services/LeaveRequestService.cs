@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using LeaveManagement.Application.DTOs;
+using LeaveManagement.Application.Exceptions;
 using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Domain.Entities;
 using LeaveManagement.Domain.Enums;
@@ -124,7 +125,7 @@ namespace LeaveManagement.Application.Services
             return new (result.Item1, summaryDtos);
         }
 
-        public async Task<IEnumerable<LeaveRequestSummaryDto>?> GetByEmployeeIdAsync(int employeeId)
+        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, int pageSize, int page)
         {
             if (!_currentUserService.IsInRole("Manager") &&
                  !_currentUserService.IsInRole("HR") &&
@@ -133,8 +134,10 @@ namespace LeaveManagement.Application.Services
                 throw new ForbiddenAccessException("You do not have permission to access this resource.");
             }
 
-            var leaveRequests = await _repository.GetByEmployeeIdAsync(employeeId);
-            return _mapper.ToSummaryDtoList(leaveRequests);
+            var result = await _repository.GetByEmployeeIdAsync(employeeId, pageSize, page);
+            var summaryDtos = _mapper.ToSummaryDtoList(result.Item2);
+
+            return (result.Item1, summaryDtos);
         }
     }
 }

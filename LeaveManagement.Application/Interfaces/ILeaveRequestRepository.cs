@@ -7,7 +7,7 @@ namespace LeaveManagement.Application.Interfaces
     {
         Task<LeaveRequest?> GetByIdAsync(Guid id);
         Task<(int, IEnumerable<LeaveRequest>)> GetAllAsync(LeaveStatus? status, int pageSize, int page);
-        Task<IEnumerable<LeaveRequest>> GetByEmployeeIdAsync(int employeeId);
+        Task<(int, IEnumerable<LeaveRequest>)> GetByEmployeeIdAsync(int employeeId, int pageSize, int page);
         Task CreateAsync(LeaveRequest leaveRequest);
         Task UpdateAsync(LeaveRequest leaveRequest);
         Task DeleteAsync(Guid id);
