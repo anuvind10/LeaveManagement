@@ -1,4 +1,5 @@
-﻿using LeaveManagement.Application.DTOs;
+﻿using LeaveManagement.Application.Common;
+using LeaveManagement.Application.DTOs;
 using LeaveManagement.Domain.Enums;
 
 namespace LeaveManagement.Application.Interfaces
@@ -10,7 +11,7 @@ namespace LeaveManagement.Application.Interfaces
         Task<LeaveRequestDto?> ApproveLeaveRequestAsync(Guid id, int auditorId, string? comments);
         Task<LeaveRequestDto?> RejectLeaveRequestAsync(Guid id, int auditorId, string comments);
         Task<LeaveRequestDto?> CancelLeaveRequestAsync(Guid id, int auditorId, string? comments);
-        Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, int pageSize, int page);
-        Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, int pageSize, int page);
+        Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, PaginationParams pagination);
+        Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, PaginationParams pagination);
     }
 }

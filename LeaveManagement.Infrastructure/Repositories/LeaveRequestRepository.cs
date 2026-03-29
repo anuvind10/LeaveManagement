@@ -42,6 +42,7 @@ namespace LeaveManagement.Infrastructure.Repositories
             var query = _context.LeaveRequests
                 .Include(lr => lr.LeaveAudits)
                 .Where(lr => lr.EmployeeId == employeeId)
+                .OrderBy(lr => lr.Id)
                 .AsQueryable();
 
             var totalCount = await query.CountAsync();

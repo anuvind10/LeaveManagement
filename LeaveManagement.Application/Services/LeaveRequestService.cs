@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using LeaveManagement.Application.Common;
 using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Exceptions;
 using LeaveManagement.Application.Interfaces;
@@ -10,22 +11,25 @@ namespace LeaveManagement.Application.Services
     public class LeaveRequestService : ILeaveRequestService
     {
         private readonly ILeaveRequestRepository _repository;
-        private readonly IValidator<CreateLeaveRequestDto> _validator;
+        private readonly IValidator<CreateLeaveRequestDto> _creationValidator;
+        private readonly IValidator<PaginationParams> _paginationValidator;
         private readonly ILeaveRequestMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
         public LeaveRequestService(ILeaveRequestRepository leaveRequestRepository, 
-                                    IValidator<CreateLeaveRequestDto> validator, 
+                                    IValidator<CreateLeaveRequestDto> creationValidator, 
+                                    IValidator<PaginationParams> paginationValidator,
                                     ILeaveRequestMapper mapper,
                                     ICurrentUserService currentUserService)
         {
             _repository = leaveRequestRepository;
-            _validator = validator;
+            _creationValidator = creationValidator;
+            _paginationValidator = paginationValidator;
             _mapper = mapper;
             _currentUserService = currentUserService;
         }
 
         public async Task<LeaveRequestDto> SubmitLeaveRequestAsync(CreateLeaveRequestDto dto, int employeeId) {
-            var validationResult = await _validator.ValidateAsync(dto);
+            var validationResult = await _creationValidator.ValidateAsync(dto);
 
             if (!validationResult.IsValid)
             {
@@ -117,16 +121,20 @@ namespace LeaveManagement.Application.Services
             return _mapper.ToDto(leaveRequest);
         }
 
-        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, int pageSize, int page) {
-            var result = await _repository.GetAllAsync(status, pageSize, page);
+        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, PaginationParams pagination) {
+            ValidatePaginationParams(pagination);
+
+            var result = await _repository.GetAllAsync(status, pagination.PageSize, pagination.Page);
 
             var summaryDtos = _mapper.ToSummaryDtoList(result.Item2);
 
             return new (result.Item1, summaryDtos);
         }
 
-        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, int pageSize, int page)
+        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, PaginationParams pagination)
         {
+            ValidatePaginationParams(pagination);
+
             if (!_currentUserService.IsInRole("Manager") &&
                  !_currentUserService.IsInRole("HR") &&
                  employeeId != _currentUserService.UserId)
@@ -134,10 +142,27 @@ namespace LeaveManagement.Application.Services
                 throw new ForbiddenAccessException("You do not have permission to access this resource.");
             }
 
-            var result = await _repository.GetByEmployeeIdAsync(employeeId, pageSize, page);
+            var result = await _repository.GetByEmployeeIdAsync(employeeId, pagination.PageSize, pagination.Page);
             var summaryDtos = _mapper.ToSummaryDtoList(result.Item2);
 
             return (result.Item1, summaryDtos);
+        }
+
+        private async void ValidatePaginationParams(PaginationParams pagination)
+        {
+            var validationResult = await _paginationValidator.ValidateAsync(pagination);
+
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors
+                    .GroupBy(e => e.PropertyName)
+                    .ToDictionary(
+                        g => g.Key,
+                        g => g.Select(e => e.ErrorMessage).ToArray()
+                    );
+
+                throw new Exceptions.ValidationException("One or more validation errors occurred.", errors);
+            }
         }
     }
 }
