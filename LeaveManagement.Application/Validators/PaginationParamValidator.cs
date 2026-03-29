@@ -3,9 +3,9 @@ using LeaveManagement.Application.Common;
 
 namespace LeaveManagement.Application.Validators
 {
-    public class PaginationParamValidators : AbstractValidator<PaginationParams>
+    public class PaginationParamValidator : AbstractValidator<PaginationParams>
     {
-        public PaginationParamValidators()
+        public PaginationParamValidator()
         {
             RuleFor(paginationParams => paginationParams.Page)
                 .GreaterThan(0)
