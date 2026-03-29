@@ -45,9 +45,9 @@ namespace LeaveManagement.API.Controllers
         {
             var result = await _service.GetByEmployeeIdAsync(employeeId, pagination);
 
-            var response = new PagedResponse()
+            var response = new PagedResponse<LeaveRequestSummaryDto>()
             {
-                dtos = result.Item2,
+                Items = result.Item2,
                 TotalCount = result.Item1,
                 PageSize = pagination.PageSize,
                 Page = pagination.Page,
@@ -62,9 +62,9 @@ namespace LeaveManagement.API.Controllers
         {
             var result = await _service.GetAllAsync(status, pagination);
 
-            var response = new PagedResponse() 
+            var response = new PagedResponse<LeaveRequestSummaryDto>() 
             {
-                dtos = result.Item2,
+                Items = result.Item2,
                 TotalCount = result.Item1,
                 PageSize = pagination.PageSize,
                 Page = pagination.Page,
