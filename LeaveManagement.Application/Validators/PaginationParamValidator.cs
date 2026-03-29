@@ -7,12 +7,13 @@ namespace LeaveManagement.Application.Validators
     {
         public PaginationParamValidator()
         {
-            RuleFor(paginationParams => paginationParams.Page)
+            RuleFor(pagination => pagination.Page)
                 .GreaterThan(0)
                 .WithMessage("Page should be a positive value.");
-            RuleFor(paginationParams => paginationParams.PageSize)
+            RuleFor(pagination => pagination.PageSize)
                 .GreaterThan(0)
-                .WithMessage("Page size should be a positive value.");
+                .LessThanOrEqualTo(100)
+                .WithMessage("Page size should be between 1 and 100.");
         }
     }
 }
