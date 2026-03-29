@@ -70,7 +70,7 @@ namespace LeaveManagement.API.Controllers
                 Page = pagination.Page,
             };
 
-            return Ok(response);    ;
+            return Ok(response);
         }
 
         [HttpPut("{id}/approve")]

@@ -129,7 +129,7 @@ app.UseStatusCodePages(async context =>
         await response.WriteAsJsonAsync(new ApiErrorResponse
         {
             Title = "Authentication Required",
-            Status = 403,
+            Status = 401,
             Detail = "You need to authenticate first before accessing this resource."
         });
     }
