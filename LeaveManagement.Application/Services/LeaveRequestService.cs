@@ -122,7 +122,7 @@ namespace LeaveManagement.Application.Services
         }
 
         public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, PaginationParams pagination) {
-            ValidatePaginationParams(pagination);
+            await ValidatePaginationParams(pagination);
 
             var result = await _repository.GetAllAsync(status, pagination.PageSize, pagination.Page);
 
@@ -133,7 +133,7 @@ namespace LeaveManagement.Application.Services
 
         public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, PaginationParams pagination)
         {
-            ValidatePaginationParams(pagination);
+            await ValidatePaginationParams(pagination);
 
             if (!_currentUserService.IsInRole("Manager") &&
                  !_currentUserService.IsInRole("HR") &&
@@ -148,7 +148,7 @@ namespace LeaveManagement.Application.Services
             return (result.Item1, summaryDtos);
         }
 
-        private async void ValidatePaginationParams(PaginationParams pagination)
+        private async Task ValidatePaginationParams(PaginationParams pagination)
         {
             var validationResult = await _paginationValidator.ValidateAsync(pagination);
 
