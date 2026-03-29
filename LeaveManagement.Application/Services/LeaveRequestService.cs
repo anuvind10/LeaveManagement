@@ -29,19 +29,7 @@ namespace LeaveManagement.Application.Services
         }
 
         public async Task<LeaveRequestDto> SubmitLeaveRequestAsync(CreateLeaveRequestDto dto, int employeeId) {
-            var validationResult = await _creationValidator.ValidateAsync(dto);
-
-            if (!validationResult.IsValid)
-            {
-                var errors = validationResult.Errors
-                    .GroupBy(e => e.PropertyName)
-                    .ToDictionary(
-                        g => g.Key,
-                        g => g.Select(e => e.ErrorMessage).ToArray()
-                    );
-
-                throw new Exceptions.ValidationException("One or more validation errors occurred." ,errors);
-            }
+            await ValidateAsync(_creationValidator, dto);
 
             var leaveRequest = new LeaveRequest()
             {
@@ -121,8 +109,9 @@ namespace LeaveManagement.Application.Services
             return _mapper.ToDto(leaveRequest);
         }
 
-        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, PaginationParams pagination) {
-            await ValidatePaginationParams(pagination);
+        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, PaginationParams pagination) 
+        {
+            await ValidateAsync(_paginationValidator, pagination);
 
             var result = await _repository.GetAllAsync(status, pagination.PageSize, pagination.Page);
 
@@ -133,7 +122,7 @@ namespace LeaveManagement.Application.Services
 
         public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, PaginationParams pagination)
         {
-            await ValidatePaginationParams(pagination);
+            await ValidateAsync(_paginationValidator, pagination);
 
             if (!_currentUserService.IsInRole("Manager") &&
                  !_currentUserService.IsInRole("HR") &&
@@ -148,9 +137,9 @@ namespace LeaveManagement.Application.Services
             return (result.Item1, summaryDtos);
         }
 
-        private async Task ValidatePaginationParams(PaginationParams pagination)
+        private async Task ValidateAsync<T>(IValidator<T> validator, T instance)
         {
-            var validationResult = await _paginationValidator.ValidateAsync(pagination);
+            var validationResult = await validator.ValidateAsync(instance);
 
             if (!validationResult.IsValid)
             {
