@@ -58,6 +58,13 @@ namespace LeaveManagement.API.Middleware
                     errorResponse.Detail = ex.Message;
                     _logger.LogWarning("Handled exception {ExceptionType}: {Message}", ex.GetType().Name, ex.Message);
                 }
+                else if (ex is ForbiddenAccessException)
+                {
+                    errorResponse.Title = "Forbidden Access";
+                    errorResponse.Status = 403;
+                    errorResponse.Detail = ex.Message;
+                    _logger.LogWarning("Handled exception {ExceptionType}: {Message}", ex.GetType().Name, ex.Message);
+                }
                 else if (ex is DbUpdateConcurrencyException)
                 {
                     errorResponse.Title = "Unable to update resource";
