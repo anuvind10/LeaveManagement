@@ -19,13 +19,14 @@ namespace LeaveManagement.Infrastructure.Repositories
         {
             var query = _context.LeaveRequests
                 .Include(lr => lr.LeaveAudits)
-                .OrderBy(lr => lr.Id)
                 .AsQueryable();
 
             if (status.HasValue)
             {
                 query = query.Where(lr => lr.LeaveStatus == status);
             }
+
+            query = query.OrderBy(lr => lr.Id);
 
             var totalCount = await query.CountAsync();
 
@@ -42,8 +43,7 @@ namespace LeaveManagement.Infrastructure.Repositories
             var query = _context.LeaveRequests
                 .Include(lr => lr.LeaveAudits)
                 .Where(lr => lr.EmployeeId == employeeId)
-                .OrderBy(lr => lr.Id)
-                .AsQueryable();
+                .OrderBy(lr => lr.Id);
 
             var totalCount = await query.CountAsync();
 
