@@ -41,16 +41,16 @@ namespace LeaveManagement.API.Controllers
         }
 
         [HttpGet("employee/{employeeId}")]
-        public async Task<ActionResult<(int, IEnumerable<LeaveRequestSummaryDto>)>> GetByEmployeeId(int employeeId, [FromQuery] PaginationParams paginationParams)
+        public async Task<ActionResult<(int, IEnumerable<LeaveRequestSummaryDto>)>> GetByEmployeeId(int employeeId, [FromQuery] PaginationParams pagination)
         {
-            var result = await _service.GetByEmployeeIdAsync(employeeId, paginationParams.PageSize, paginationParams.Page);
+            var result = await _service.GetByEmployeeIdAsync(employeeId, pagination);
 
             var response = new PagedResponse()
             {
                 dtos = result.Item2,
                 TotalCount = result.Item1,
-                PageSize = paginationParams.PageSize,
-                Page = paginationParams.Page,
+                PageSize = pagination.PageSize,
+                Page = pagination.Page,
             };
 
             return Ok(response);
@@ -58,16 +58,16 @@ namespace LeaveManagement.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Manager,HR")]
-        public async Task<ActionResult<PaginationParams>> GetAll(LeaveStatus? status, [FromQuery] PaginationParams paginationParams)
+        public async Task<ActionResult<PaginationParams>> GetAll(LeaveStatus? status, [FromQuery] PaginationParams pagination)
         {
-            var result = await _service.GetAllAsync(status, paginationParams.PageSize, paginationParams.Page);
+            var result = await _service.GetAllAsync(status, pagination);
 
             var response = new PagedResponse() 
             {
                 dtos = result.Item2,
                 TotalCount = result.Item1,
-                PageSize = paginationParams.PageSize,
-                Page = paginationParams.Page,
+                PageSize = pagination.PageSize,
+                Page = pagination.Page,
             };
 
             return Ok(response);    ;
