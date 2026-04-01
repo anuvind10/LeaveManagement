@@ -41,9 +41,12 @@ namespace LeaveManagement.API.Controllers
         }
 
         [HttpGet("employee/{employeeId}")]
-        public async Task<ActionResult<PagedResponse<LeaveRequestSummaryDto>>> GetByEmployeeId(int employeeId, [FromQuery] LeaveRequestPaginationParams pagination)
+        public async Task<ActionResult<PagedResponse<LeaveRequestSummaryDto>>> GetByEmployeeId(int employeeId, 
+            [FromQuery] LeaveRequestPaginationParams pagination,
+            [FromQuery] LeaveRequestSortParams sortParams,
+            [FromQuery] LeaveRequestFilterParams filterParams)
         {
-            var result = await _service.GetByEmployeeIdAsync(employeeId, pagination);
+            var result = await _service.GetByEmployeeIdAsync(employeeId, pagination, sortParams, filterParams);
 
             var response = new PagedResponse<LeaveRequestSummaryDto>()
             {
@@ -58,9 +61,11 @@ namespace LeaveManagement.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Manager,HR")]
-        public async Task<ActionResult<PagedResponse<LeaveRequestSummaryDto>>> GetAll(LeaveStatus? status, [FromQuery] LeaveRequestPaginationParams pagination)
+        public async Task<ActionResult<PagedResponse<LeaveRequestSummaryDto>>> GetAll([FromQuery] LeaveRequestPaginationParams pagination,
+            [FromQuery] LeaveRequestSortParams sortParams,
+            [FromQuery] LeaveRequestFilterParams filterParams)
         {
-            var result = await _service.GetAllAsync(status, pagination);
+            var result = await _service.GetAllAsync(pagination, sortParams, filterParams);
 
             var response = new PagedResponse<LeaveRequestSummaryDto>() 
             {

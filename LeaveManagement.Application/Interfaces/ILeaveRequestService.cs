@@ -11,7 +11,12 @@ namespace LeaveManagement.Application.Interfaces
         Task<LeaveRequestDto?> ApproveLeaveRequestAsync(Guid id, int auditorId, string? comments);
         Task<LeaveRequestDto?> RejectLeaveRequestAsync(Guid id, int auditorId, string comments);
         Task<LeaveRequestDto?> CancelLeaveRequestAsync(Guid id, int auditorId, string? comments);
-        Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, LeaveRequestPaginationParams pagination);
-        Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, LeaveRequestPaginationParams pagination);
+        Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveRequestPaginationParams pagination, 
+            LeaveRequestSortParams sortParams, 
+            LeaveRequestFilterParams filterParams);
+        Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, 
+            LeaveRequestPaginationParams pagination,
+            LeaveRequestSortParams sortParams,
+            LeaveRequestFilterParams filterParams);
     }
 }

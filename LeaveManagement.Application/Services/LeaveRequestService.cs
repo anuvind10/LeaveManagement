@@ -109,18 +109,26 @@ namespace LeaveManagement.Application.Services
             return _mapper.ToDto(leaveRequest);
         }
 
-        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, LeaveRequestPaginationParams pagination) 
+        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveRequestPaginationParams pagination,
+            LeaveRequestSortParams sortParams,
+            LeaveRequestFilterParams filterParams) 
         {
             await ValidateAsync(_paginationValidator, pagination);
 
-            var result = await _repository.GetAllAsync(status, pagination.PageSize, pagination.Page);
+            var result = await _repository.GetAllAsync(pagination.PageSize, 
+                pagination.Page,
+                sortParams,
+                filterParams);
 
             var summaryDtos = _mapper.ToSummaryDtoList(result.Item2);
 
             return new (result.Item1, summaryDtos);
         }
 
-        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, LeaveRequestPaginationParams pagination)
+        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, 
+            LeaveRequestPaginationParams pagination,
+            LeaveRequestSortParams sortParams,
+            LeaveRequestFilterParams filterParams)
         {
             await ValidateAsync(_paginationValidator, pagination);
 
@@ -131,7 +139,12 @@ namespace LeaveManagement.Application.Services
                 throw new ForbiddenAccessException("You do not have permission to access this resource.");
             }
 
-            var result = await _repository.GetByEmployeeIdAsync(employeeId, pagination.PageSize, pagination.Page);
+            var result = await _repository.GetByEmployeeIdAsync(employeeId, 
+                pagination.PageSize, 
+                pagination.Page,
+                sortParams,
+                filterParams);
+
             var summaryDtos = _mapper.ToSummaryDtoList(result.Item2);
 
             return (result.Item1, summaryDtos);
