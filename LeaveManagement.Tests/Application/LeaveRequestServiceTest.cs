@@ -7,6 +7,7 @@ using LeaveManagement.Application.Mappings;
 using LeaveManagement.Application.Services;
 using LeaveManagement.Domain.Entities;
 using LeaveManagement.Domain.Enums;
+using LeaveManagement.Application.Enums;
 using Moq;
 
 namespace LeaveManagement.Tests.Application
@@ -19,6 +20,8 @@ namespace LeaveManagement.Tests.Application
         private readonly Mock<ICurrentUserService> _mockCurrentUser;
         private readonly LeaveRequestService _service;
         private readonly LeaveRequestPaginationParams _paginationParams;
+        private readonly LeaveRequestSortParams _sortParams;
+        private readonly LeaveRequestFilterParams _filterParams;
         public LeaveRequestServiceTest()
         {
             _mockRepo = new Mock<ILeaveRequestRepository>();
@@ -33,6 +36,8 @@ namespace LeaveManagement.Tests.Application
                                                _mockCurrentUser.Object);
 
             _paginationParams = new LeaveRequestPaginationParams();
+            _sortParams = new LeaveRequestSortParams();
+            _filterParams = new LeaveRequestFilterParams();
         }
 
         [Fact]
@@ -193,14 +198,15 @@ namespace LeaveManagement.Tests.Application
         {
             var leaveRequest = CreateLeaveRequest(1);
             var leaveRequests = new List<LeaveRequest> { leaveRequest };
-            _mockRepo.Setup(r => r.GetByEmployeeIdAsync(leaveRequest.EmployeeId, It.IsAny<int>(), It.IsAny<int>()))
+
+            _mockRepo.Setup(r => r.GetByEmployeeIdAsync(leaveRequest.EmployeeId, It.IsAny<int>(), It.IsAny<int>(), It.IsAny<LeaveRequestSortParams>(), It.IsAny<LeaveRequestFilterParams>()))
                     .ReturnsAsync((1, leaveRequests));
             _mockCurrentUser.Setup(cu => cu.UserId).Returns(1);
             _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(false);
             _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<LeaveRequestPaginationParams>(), default))
                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
-            var result = await _service.GetByEmployeeIdAsync(1, _paginationParams);
+            var result = await _service.GetByEmployeeIdAsync(1, _paginationParams, _sortParams, _filterParams);
             Assert.Single(result.Item2);
 
             var request = result.Item2.Single();
@@ -219,7 +225,7 @@ namespace LeaveManagement.Tests.Application
                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
             await Assert.ThrowsAsync<ForbiddenAccessException>
-                (() => _service.GetByEmployeeIdAsync(2, _paginationParams));
+                (() => _service.GetByEmployeeIdAsync(2, _paginationParams, _sortParams, _filterParams));
         }
 
         [Fact]
@@ -227,14 +233,14 @@ namespace LeaveManagement.Tests.Application
         {
             var leaveRequest = CreateLeaveRequest(1);
             var leaveRequests = new List<LeaveRequest> { leaveRequest };
-            _mockRepo.Setup(r => r.GetByEmployeeIdAsync(leaveRequest.EmployeeId, It.IsAny<int>(), It.IsAny<int>()))
+            _mockRepo.Setup(r => r.GetByEmployeeIdAsync(leaveRequest.EmployeeId, It.IsAny<int>(), It.IsAny<int>(), It.IsAny<LeaveRequestSortParams>(), It.IsAny<LeaveRequestFilterParams>()))
                     .ReturnsAsync((1, leaveRequests));
             _mockCurrentUser.Setup(cu => cu.UserId).Returns(2);
             _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(true);
             _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<LeaveRequestPaginationParams>(), default))
                 .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
-            var result = await _service.GetByEmployeeIdAsync(1, _paginationParams);
+            var result = await _service.GetByEmployeeIdAsync(1, _paginationParams, _sortParams, _filterParams);
 
             Assert.Single(result.Item2);
 
@@ -260,7 +266,7 @@ namespace LeaveManagement.Tests.Application
                 .ReturnsAsync(validationResult);
 
             await Assert.ThrowsAsync<LeaveManagement.Application.Exceptions.ValidationException>
-                (() => _service.GetByEmployeeIdAsync(1, invalidPaginationParams));
+                (() => _service.GetByEmployeeIdAsync(1, invalidPaginationParams, _sortParams, _filterParams));
         }
 
         [Fact]
@@ -277,7 +283,7 @@ namespace LeaveManagement.Tests.Application
                 .ReturnsAsync(validationResult);
 
             await Assert.ThrowsAsync<LeaveManagement.Application.Exceptions.ValidationException>
-                (() => _service.GetAllAsync(LeaveStatus.Pending, invalidPaginationParams));
+                (() => _service.GetAllAsync(invalidPaginationParams, _sortParams, _filterParams));
         }
 
         private static LeaveRequest CreateLeaveRequest(int employeeId)
