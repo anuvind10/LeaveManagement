@@ -109,14 +109,13 @@ namespace LeaveManagement.Application.Services
             return _mapper.ToDto(leaveRequest);
         }
 
-        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveRequestPaginationParams pagination,
+        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveRequestPaginationParams paginationParams,
             LeaveRequestSortParams sortParams,
             LeaveRequestFilterParams filterParams) 
         {
-            await ValidateAsync(_paginationValidator, pagination);
+            await ValidateAsync(_paginationValidator, paginationParams);
 
-            var result = await _repository.GetAllAsync(pagination.PageSize, 
-                pagination.Page,
+            var result = await _repository.GetAllAsync(paginationParams,
                 sortParams,
                 filterParams);
 
@@ -126,11 +125,11 @@ namespace LeaveManagement.Application.Services
         }
 
         public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, 
-            LeaveRequestPaginationParams pagination,
+            LeaveRequestPaginationParams paginationParams,
             LeaveRequestSortParams sortParams,
             LeaveRequestFilterParams filterParams)
         {
-            await ValidateAsync(_paginationValidator, pagination);
+            await ValidateAsync(_paginationValidator, paginationParams);
 
             if (!_currentUserService.IsInRole("Manager") &&
                  !_currentUserService.IsInRole("HR") &&
@@ -139,9 +138,8 @@ namespace LeaveManagement.Application.Services
                 throw new ForbiddenAccessException("You do not have permission to access this resource.");
             }
 
-            var result = await _repository.GetByEmployeeIdAsync(employeeId, 
-                pagination.PageSize, 
-                pagination.Page,
+            var result = await _repository.GetByEmployeeIdAsync(employeeId,
+                paginationParams,
                 sortParams,
                 filterParams);
 

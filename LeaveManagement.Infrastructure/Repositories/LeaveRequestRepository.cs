@@ -17,8 +17,7 @@ namespace LeaveManagement.Infrastructure.Repositories
             _context = context;
         }
         
-        public async Task<(int, IEnumerable<LeaveRequest>)> GetAllAsync(int pageSize, 
-            int page, 
+        public async Task<(int, IEnumerable<LeaveRequest>)> GetAllAsync(LeaveRequestPaginationParams paginationParams,
             LeaveRequestSortParams sortParams,
             LeaveRequestFilterParams filterParams)
         {
@@ -66,16 +65,15 @@ namespace LeaveManagement.Infrastructure.Repositories
             var totalCount = await query.CountAsync();
 
             var items = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((paginationParams.Page - 1) * paginationParams.PageSize)
+                .Take(paginationParams.PageSize)
                 .ToListAsync();
 
             return (totalCount, items);
         }
 
         public async Task<(int, IEnumerable<LeaveRequest>)> GetByEmployeeIdAsync(int employeeId, 
-            int pageSize, 
-            int page, 
+            LeaveRequestPaginationParams paginationParams, 
             LeaveRequestSortParams sortParams, 
             LeaveRequestFilterParams filterParams)
         {
@@ -95,12 +93,12 @@ namespace LeaveManagement.Infrastructure.Repositories
 
             if (filterParams.FromDate.HasValue)
             {
-                query = query.Where(lr => lr.SubmittedDate > filterParams.FromDate);
+                query = query.Where(lr => lr.SubmittedDate >= filterParams.FromDate);
             }
             
             if (filterParams.ToDate.HasValue)
             {
-                query = query.Where(lr => lr.SubmittedDate < filterParams.ToDate);
+                query = query.Where(lr => lr.SubmittedDate <= filterParams.ToDate);
             }
 
             query = sortParams.Field switch
@@ -118,8 +116,8 @@ namespace LeaveManagement.Infrastructure.Repositories
             var totalCount = await query.CountAsync();
 
             var items = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((paginationParams.Page - 1) * paginationParams.PageSize)
+                .Take(paginationParams.PageSize)
                 .ToListAsync();
 
             return (totalCount, items);
