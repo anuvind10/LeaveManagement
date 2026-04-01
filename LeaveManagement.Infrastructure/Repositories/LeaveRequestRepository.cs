@@ -58,8 +58,8 @@ namespace LeaveManagement.Infrastructure.Repositories
                     : query.OrderByDescending(lr => lr.SubmittedDate),
 
                 SortByField.NoOfDays => sortParams.Direction == SortDirection.Ascending
-                    ? query.OrderBy(lr => (lr.EndDate - lr.StartDate))
-                    : query.OrderByDescending(lr => (lr.EndDate - lr.StartDate)),
+                    ? query.OrderBy(lr => EF.Functions.DateDiffDay(lr.StartDate, lr.EndDate))
+                    : query.OrderByDescending(lr => EF.Functions.DateDiffDay(lr.StartDate, lr.EndDate)),
                 _ => query.OrderBy(lr => lr.SubmittedDate)
             };
 
@@ -110,8 +110,8 @@ namespace LeaveManagement.Infrastructure.Repositories
                     : query.OrderByDescending(lr => lr.SubmittedDate),
 
                 SortByField.NoOfDays => sortParams.Direction == SortDirection.Ascending
-                    ? query.OrderBy(lr => (lr.EndDate - lr.StartDate))
-                    : query.OrderByDescending(lr => (lr.EndDate - lr.StartDate)),
+                    ? query.OrderBy(lr => EF.Functions.DateDiffDay(lr.StartDate, lr.EndDate))
+                    : query.OrderByDescending(lr => EF.Functions.DateDiffDay(lr.StartDate, lr.EndDate)),
                 _ => query.OrderBy(lr => lr.SubmittedDate)
             };
 
