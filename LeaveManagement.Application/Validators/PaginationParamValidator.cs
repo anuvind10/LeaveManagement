@@ -3,7 +3,7 @@ using LeaveManagement.Application.Common;
 
 namespace LeaveManagement.Application.Validators
 {
-    public class PaginationParamValidator : AbstractValidator<PaginationParams>
+    public class PaginationParamValidator : AbstractValidator<LeaveRequestPaginationParams>
     {
         public PaginationParamValidator()
         {

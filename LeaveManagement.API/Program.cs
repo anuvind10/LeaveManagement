@@ -64,7 +64,7 @@ builder.Services.AddScoped<ILeaveRequestService, LeaveRequestService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<IValidator<CreateLeaveRequestDto>, CreateLeaveRequestValidator>();
-builder.Services.AddScoped<IValidator<PaginationParams>, PaginationParamValidator>();
+builder.Services.AddScoped<IValidator<LeaveRequestPaginationParams>, PaginationParamValidator>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<ILeaveRequestMapper, LeaveRequestMapper>();
 builder.Services.AddHttpContextAccessor();

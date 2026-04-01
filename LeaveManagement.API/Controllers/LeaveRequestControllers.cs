@@ -41,7 +41,7 @@ namespace LeaveManagement.API.Controllers
         }
 
         [HttpGet("employee/{employeeId}")]
-        public async Task<ActionResult<PagedResponse<LeaveRequestSummaryDto>>> GetByEmployeeId(int employeeId, [FromQuery] PaginationParams pagination)
+        public async Task<ActionResult<PagedResponse<LeaveRequestSummaryDto>>> GetByEmployeeId(int employeeId, [FromQuery] LeaveRequestPaginationParams pagination)
         {
             var result = await _service.GetByEmployeeIdAsync(employeeId, pagination);
 
@@ -58,7 +58,7 @@ namespace LeaveManagement.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Manager,HR")]
-        public async Task<ActionResult<PagedResponse<LeaveRequestSummaryDto>>> GetAll(LeaveStatus? status, [FromQuery] PaginationParams pagination)
+        public async Task<ActionResult<PagedResponse<LeaveRequestSummaryDto>>> GetAll(LeaveStatus? status, [FromQuery] LeaveRequestPaginationParams pagination)
         {
             var result = await _service.GetAllAsync(status, pagination);
 

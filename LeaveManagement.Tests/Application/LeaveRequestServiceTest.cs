@@ -15,15 +15,15 @@ namespace LeaveManagement.Tests.Application
     {
         private readonly Mock<ILeaveRequestRepository> _mockRepo;
         private readonly Mock<IValidator<CreateLeaveRequestDto>> _mockCreationValidator;
-        private readonly Mock<IValidator<PaginationParams>> _mochPaginationValidator;
+        private readonly Mock<IValidator<LeaveRequestPaginationParams>> _mochPaginationValidator;
         private readonly Mock<ICurrentUserService> _mockCurrentUser;
         private readonly LeaveRequestService _service;
-        private readonly PaginationParams _paginationParams;
+        private readonly LeaveRequestPaginationParams _paginationParams;
         public LeaveRequestServiceTest()
         {
             _mockRepo = new Mock<ILeaveRequestRepository>();
             _mockCreationValidator = new Mock<IValidator<CreateLeaveRequestDto>>();
-            _mochPaginationValidator = new Mock<IValidator<PaginationParams>>();
+            _mochPaginationValidator = new Mock<IValidator<LeaveRequestPaginationParams>>();
             _mockCurrentUser = new Mock<ICurrentUserService>();
             
             _service = new LeaveRequestService(_mockRepo.Object,
@@ -32,7 +32,7 @@ namespace LeaveManagement.Tests.Application
                                                new LeaveRequestMapper(),
                                                _mockCurrentUser.Object);
 
-            _paginationParams = new PaginationParams();
+            _paginationParams = new LeaveRequestPaginationParams();
         }
 
         [Fact]
@@ -197,7 +197,7 @@ namespace LeaveManagement.Tests.Application
                     .ReturnsAsync((1, leaveRequests));
             _mockCurrentUser.Setup(cu => cu.UserId).Returns(1);
             _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(false);
-            _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<PaginationParams>(), default))
+            _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<LeaveRequestPaginationParams>(), default))
                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
             var result = await _service.GetByEmployeeIdAsync(1, _paginationParams);
@@ -215,7 +215,7 @@ namespace LeaveManagement.Tests.Application
         {
             _mockCurrentUser.Setup(cu => cu.UserId).Returns(1);
             _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(false);
-            _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<PaginationParams>(), default))
+            _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<LeaveRequestPaginationParams>(), default))
                .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
             await Assert.ThrowsAsync<ForbiddenAccessException>
@@ -231,7 +231,7 @@ namespace LeaveManagement.Tests.Application
                     .ReturnsAsync((1, leaveRequests));
             _mockCurrentUser.Setup(cu => cu.UserId).Returns(2);
             _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(true);
-            _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<PaginationParams>(), default))
+            _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<LeaveRequestPaginationParams>(), default))
                 .ReturnsAsync(new FluentValidation.Results.ValidationResult());
 
             var result = await _service.GetByEmployeeIdAsync(1, _paginationParams);
@@ -249,14 +249,14 @@ namespace LeaveManagement.Tests.Application
         [Fact]
         public async Task GetByEmployeeIdAsync_WhenValidationFails_ShouldThrowValidationException()
         {
-            var invalidPaginationParams = new PaginationParams { Page = 1, PageSize = -10 };
+            var invalidPaginationParams = new LeaveRequestPaginationParams { Page = 1, PageSize = -10 };
             var validationResult = new FluentValidation.Results.ValidationResult(
                 new List<FluentValidation.Results.ValidationFailure>
                 {
                     new FluentValidation.Results.ValidationFailure("PageSize", "Page size should be between 1 and 100.")
                 });
 
-            _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<PaginationParams>(), default))
+            _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<LeaveRequestPaginationParams>(), default))
                 .ReturnsAsync(validationResult);
 
             await Assert.ThrowsAsync<LeaveManagement.Application.Exceptions.ValidationException>
@@ -266,14 +266,14 @@ namespace LeaveManagement.Tests.Application
         [Fact]
         public async Task GetAllAsync_WhenValidationFails_ShouldThrowValidationException()
         {
-            var invalidPaginationParams = new PaginationParams { Page = -3, PageSize = 10 };
+            var invalidPaginationParams = new LeaveRequestPaginationParams { Page = -3, PageSize = 10 };
             var validationResult = new FluentValidation.Results.ValidationResult(
                 new List<FluentValidation.Results.ValidationFailure>
                 {
                     new FluentValidation.Results.ValidationFailure("Page", "Page should be a positive value.")
                 });
 
-            _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<PaginationParams>(), default))
+            _mochPaginationValidator.Setup(v => v.ValidateAsync(It.IsAny<LeaveRequestPaginationParams>(), default))
                 .ReturnsAsync(validationResult);
 
             await Assert.ThrowsAsync<LeaveManagement.Application.Exceptions.ValidationException>

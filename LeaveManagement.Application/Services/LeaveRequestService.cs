@@ -12,12 +12,12 @@ namespace LeaveManagement.Application.Services
     {
         private readonly ILeaveRequestRepository _repository;
         private readonly IValidator<CreateLeaveRequestDto> _creationValidator;
-        private readonly IValidator<PaginationParams> _paginationValidator;
+        private readonly IValidator<LeaveRequestPaginationParams> _paginationValidator;
         private readonly ILeaveRequestMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
         public LeaveRequestService(ILeaveRequestRepository leaveRequestRepository, 
                                     IValidator<CreateLeaveRequestDto> creationValidator, 
-                                    IValidator<PaginationParams> paginationValidator,
+                                    IValidator<LeaveRequestPaginationParams> paginationValidator,
                                     ILeaveRequestMapper mapper,
                                     ICurrentUserService currentUserService)
         {
@@ -109,7 +109,7 @@ namespace LeaveManagement.Application.Services
             return _mapper.ToDto(leaveRequest);
         }
 
-        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, PaginationParams pagination) 
+        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveStatus? status, LeaveRequestPaginationParams pagination) 
         {
             await ValidateAsync(_paginationValidator, pagination);
 
@@ -120,7 +120,7 @@ namespace LeaveManagement.Application.Services
             return new (result.Item1, summaryDtos);
         }
 
-        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, PaginationParams pagination)
+        public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetByEmployeeIdAsync(int employeeId, LeaveRequestPaginationParams pagination)
         {
             await ValidateAsync(_paginationValidator, pagination);
 
