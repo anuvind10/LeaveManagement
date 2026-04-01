@@ -1,4 +1,6 @@
-﻿using LeaveManagement.Application.Interfaces;
+﻿using LeaveManagement.Application.Common;
+using LeaveManagement.Application.Enums;
+using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Domain.Entities;
 using LeaveManagement.Domain.Enums;
 using LeaveManagement.Infrastructure.Persistence;
@@ -15,18 +17,51 @@ namespace LeaveManagement.Infrastructure.Repositories
             _context = context;
         }
         
-        public async Task<(int, IEnumerable<LeaveRequest>)> GetAllAsync(LeaveStatus? status, int pageSize, int page)
+        public async Task<(int, IEnumerable<LeaveRequest>)> GetAllAsync(int pageSize, 
+            int page, 
+            LeaveRequestSortParams sortParams,
+            LeaveRequestFilterParams filterParams)
         {
             var query = _context.LeaveRequests
                 .Include(lr => lr.LeaveAudits)
                 .AsQueryable();
 
-            if (status.HasValue)
+            if (filterParams.Status.HasValue)
             {
-                query = query.Where(lr => lr.LeaveStatus == status);
+                query = query.Where(lr => lr.LeaveStatus == filterParams.Status);
             }
 
-            query = query.OrderBy(lr => lr.Id);
+            if (filterParams.Type.HasValue)
+            {
+                query = query.Where(lr => lr.LeaveType == filterParams.Type);
+            }
+
+            if (filterParams.EmployeeId.HasValue)
+            {
+                query = query.Where(lr => lr.EmployeeId == filterParams.EmployeeId);
+            }
+
+            if (filterParams.FromDate.HasValue)
+            {
+                query = query.Where(lr => lr.SubmittedDate >= filterParams.FromDate);
+            }
+            
+            if(filterParams.ToDate.HasValue)
+            {
+                query = query.Where(lr => lr.SubmittedDate <= filterParams.ToDate);
+            }
+
+            query = sortParams.Field switch
+            {
+                SortByField.SubmittedDate => sortParams.Direction == SortDirection.Ascending
+                    ? query.OrderBy(lr => lr.SubmittedDate)
+                    : query.OrderByDescending(lr => lr.SubmittedDate),
+
+                SortByField.NoOfDays => sortParams.Direction == SortDirection.Ascending
+                    ? query.OrderBy(lr => (lr.EndDate - lr.StartDate))
+                    : query.OrderByDescending(lr => (lr.EndDate - lr.StartDate)),
+                _ => query.OrderBy(lr => lr.SubmittedDate)
+            };
 
             var totalCount = await query.CountAsync();
 
@@ -38,12 +73,47 @@ namespace LeaveManagement.Infrastructure.Repositories
             return (totalCount, items);
         }
 
-        public async Task<(int, IEnumerable<LeaveRequest>)> GetByEmployeeIdAsync(int employeeId, int pageSize, int page)
+        public async Task<(int, IEnumerable<LeaveRequest>)> GetByEmployeeIdAsync(int employeeId, 
+            int pageSize, 
+            int page, 
+            LeaveRequestSortParams sortParams, 
+            LeaveRequestFilterParams filterParams)
         {
             var query = _context.LeaveRequests
                 .Include(lr => lr.LeaveAudits)
-                .Where(lr => lr.EmployeeId == employeeId)
-                .OrderBy(lr => lr.Id);
+                .Where(lr => lr.EmployeeId == employeeId);
+
+            if (filterParams.Status.HasValue)
+            {
+                query = query.Where(lr => lr.LeaveStatus == filterParams.Status);
+            }
+
+            if (filterParams.Type.HasValue)
+            {
+                query = query.Where(lr => lr.LeaveType == filterParams.Type);
+            }
+
+            if (filterParams.FromDate.HasValue)
+            {
+                query = query.Where(lr => lr.SubmittedDate > filterParams.FromDate);
+            }
+            
+            if (filterParams.ToDate.HasValue)
+            {
+                query = query.Where(lr => lr.SubmittedDate < filterParams.ToDate);
+            }
+
+            query = sortParams.Field switch
+            {
+                SortByField.SubmittedDate => sortParams.Direction == SortDirection.Ascending
+                    ? query.OrderBy(lr => lr.SubmittedDate)
+                    : query.OrderByDescending(lr => lr.SubmittedDate),
+
+                SortByField.NoOfDays => sortParams.Direction == SortDirection.Ascending
+                    ? query.OrderBy(lr => (lr.EndDate - lr.StartDate))
+                    : query.OrderByDescending(lr => (lr.EndDate - lr.StartDate)),
+                _ => query.OrderBy(lr => lr.SubmittedDate)
+            };
 
             var totalCount = await query.CountAsync();
 
