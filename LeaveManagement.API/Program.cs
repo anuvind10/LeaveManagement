@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Asp.Versioning;
+using FluentValidation;
 using LeaveManagement.API.Middleware;
 using LeaveManagement.API.Models;
 using LeaveManagement.API.Services;
@@ -68,6 +69,16 @@ builder.Services.AddScoped<IValidator<LeaveRequestPaginationParams>, PaginationP
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<ILeaveRequestMapper, LeaveRequestMapper>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
 
 // Add services to the container
 builder.Services.AddControllers()
