@@ -1,22 +1,23 @@
-﻿using LeaveManagement.API.Models;
+﻿using Asp.Versioning;
+using LeaveManagement.API.Models;
 using LeaveManagement.Application.Common;
 using LeaveManagement.Application.DTOs;
 using LeaveManagement.Application.Interfaces;
-using LeaveManagement.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace LeaveManagement.API.Controllers
+namespace LeaveManagement.API.Controllers.V1
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}[controller]")]
     [Authorize]
-    public class LeaveRequestControllers : ControllerBase
+    public class LeaveRequestController : ControllerBase
     {
         private readonly ILeaveRequestService _service;
 
-        public LeaveRequestControllers(ILeaveRequestService service)
+        public LeaveRequestController(ILeaveRequestService service)
         {
             _service = service;
         }
