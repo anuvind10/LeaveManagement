@@ -199,7 +199,7 @@ namespace LeaveManagement.Tests.Application
             var leaveRequest = CreateLeaveRequest(1);
             var leaveRequests = new List<LeaveRequest> { leaveRequest };
 
-            _mockRepo.Setup(r => r.GetByEmployeeIdAsync(leaveRequest.EmployeeId, It.IsAny<int>(), It.IsAny<int>(), It.IsAny<LeaveRequestSortParams>(), It.IsAny<LeaveRequestFilterParams>()))
+            _mockRepo.Setup(r => r.GetByEmployeeIdAsync(leaveRequest.EmployeeId, It.IsAny<LeaveRequestPaginationParams>(), It.IsAny<LeaveRequestSortParams>(), It.IsAny<LeaveRequestFilterParams>()))
                     .ReturnsAsync((1, leaveRequests));
             _mockCurrentUser.Setup(cu => cu.UserId).Returns(1);
             _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(false);
@@ -233,7 +233,7 @@ namespace LeaveManagement.Tests.Application
         {
             var leaveRequest = CreateLeaveRequest(1);
             var leaveRequests = new List<LeaveRequest> { leaveRequest };
-            _mockRepo.Setup(r => r.GetByEmployeeIdAsync(leaveRequest.EmployeeId, It.IsAny<int>(), It.IsAny<int>(), It.IsAny<LeaveRequestSortParams>(), It.IsAny<LeaveRequestFilterParams>()))
+            _mockRepo.Setup(r => r.GetByEmployeeIdAsync(leaveRequest.EmployeeId, It.IsAny<LeaveRequestPaginationParams>(), It.IsAny<LeaveRequestSortParams>(), It.IsAny<LeaveRequestFilterParams>()))
                     .ReturnsAsync((1, leaveRequests));
             _mockCurrentUser.Setup(cu => cu.UserId).Returns(2);
             _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(true);
