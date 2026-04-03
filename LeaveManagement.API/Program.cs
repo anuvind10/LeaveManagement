@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using FluentValidation;
+using LeaveManagement.API.Configuration;
 using LeaveManagement.API.Middleware;
 using LeaveManagement.API.Models;
 using LeaveManagement.API.Services;
@@ -115,13 +116,23 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 
+builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        foreach (var description in app.DescribeApiVersions())
+        {
+            options.SwaggerEndpoint(
+                $"/swagger/{description.GroupName}/swagger.json",
+                $"Leave Management API {description.GroupName}");
+        }
+    });
 }
 
 app.UseSerilogRequestLogging(options =>
