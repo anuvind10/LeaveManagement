@@ -1,0 +1,38 @@
+services:
+  app:
+    build: .
+    container_name: leave_management_api
+    ports:
+      - "8080:8080"
+    environment:
+      - ConnectionStrings__DefaultConnection=${ConnectionStrings__DefaultConnection}
+      - JwtSettings__SecretKey=${JwtSettings__SecretKey}
+      - JwtSettings__Issuer=${JwtSettings__Issuer}
+      - JwtSettings__Audience=${JwtSettings__Audience}
+      - JwtSettings__ExpiryInMinutes=${JwtSettings__ExpiryInMinutes}
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+
+  db:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    container_name: leave_management_db
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=${ACCEPT_EULA}
+      - SA_PASSWORD=${SA_PASSWORD} 
+    volumes:
+      - db_data:/var/opt/mssql
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "${SA_PASSWORD}", "-Q", "SELECT 1", "-No"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: always
+
+volumes:
+  db_data:

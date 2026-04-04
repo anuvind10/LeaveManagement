@@ -177,7 +177,27 @@ using (var scope = app.Services.CreateScope())
 {
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
-    await DataSeeder.SeedAsync(userManager, roleManager);
+    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+    var retries = 5;
+    while (retries > 0)
+    {
+        try
+        {
+            await dbContext.Database.MigrateAsync();
+            break;
+        }
+        catch (Exception ex)
+        {
+            retries--;
+            logger.LogWarning("Migration failed. Retries left: {Retries}. Error: {Error}", retries, ex.Message);
+            if (retries == 0) throw;
+            await Task.Delay(5000);
+        }
+    }
+        if (app.Environment.IsDevelopment())
+        await DataSeeder.SeedAsync(userManager, roleManager);
 }
 
 app.MapControllers();
