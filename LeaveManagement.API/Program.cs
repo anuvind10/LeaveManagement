@@ -15,6 +15,7 @@ using LeaveManagement.Infrastructure.Persistence;
 using LeaveManagement.Infrastructure.Repositories;
 using LeaveManagement.Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -117,6 +118,8 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<AppDbContext>("database", tags: new[] { "ready" });
 
 var app = builder.Build();
 
@@ -134,6 +137,15 @@ if (app.Environment.IsDevelopment())
         }
     });
 }
+
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false
+});
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
 
 app.UseSerilogRequestLogging(options =>
 {
