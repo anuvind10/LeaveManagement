@@ -482,3 +482,4 @@ $RECYCLE.BIN/
 *.swp
 /Project_summary.txt
 /Project_summary.md
+/LeaveManagement.API/appsettings.Development.json
