@@ -1,7 +1,6 @@
 ﻿using LeaveManagement.API.Models;
 using LeaveManagement.Application.Exceptions;
 using LeaveManagement.Domain.Exceptions;
-using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 
 namespace LeaveManagement.API.Middleware
@@ -65,7 +64,7 @@ namespace LeaveManagement.API.Middleware
                     errorResponse.Detail = ex.Message;
                     _logger.LogWarning("Handled exception {ExceptionType}: {Message}", ex.GetType().Name, ex.Message);
                 }
-                else if (ex is DbUpdateConcurrencyException)
+                else if (ex is ConcurrencyException)
                 {
                     errorResponse.Title = "Unable to update resource";
                     errorResponse.Status = 409;

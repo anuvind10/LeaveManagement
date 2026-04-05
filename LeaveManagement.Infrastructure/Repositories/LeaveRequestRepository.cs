@@ -1,8 +1,8 @@
 ﻿using LeaveManagement.Application.Common;
 using LeaveManagement.Application.Enums;
+using LeaveManagement.Application.Exceptions;
 using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Domain.Entities;
-using LeaveManagement.Domain.Enums;
 using LeaveManagement.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -136,7 +136,14 @@ namespace LeaveManagement.Infrastructure.Repositories
         }
         public async Task UpdateAsync(LeaveRequest leaveRequest)
         {
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new ConcurrencyException();
+            }
         }
         public async Task DeleteAsync(Guid id)
         {
