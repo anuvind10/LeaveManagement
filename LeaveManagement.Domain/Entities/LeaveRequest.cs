@@ -1,4 +1,4 @@
-﻿using LeaveManagement.Domain.Enums;
+using LeaveManagement.Domain.Enums;
 using LeaveManagement.Domain.Exceptions;
 using System.ComponentModel.DataAnnotations;
 
@@ -17,6 +17,12 @@ namespace LeaveManagement.Domain.Entities
         public LeaveStatus LeaveStatus { get; set; }
         public byte[]? RowVersion { get; set; }
         public ICollection<LeaveAudit> LeaveAudits { get; set; } = new List<LeaveAudit>();
+        /// <summary>
+        /// Approves the leave request if it is in <see cref="LeaveStatus.Pending"/> status.
+        /// </summary>
+        /// <param name="auditorId">The ID of the employee performing the approval.</param>
+        /// <param name="comments">Optional comments regarding the approval.</param>
+        /// <exception cref="InvalidLeaveStatusException">Thrown when the request status is not <see cref="LeaveStatus.Pending"/>.</exception>
         public void Approve(int auditorId, string? comments) {
             if (LeaveStatus != LeaveStatus.Pending)
             {
@@ -27,6 +33,12 @@ namespace LeaveManagement.Domain.Entities
             LeaveStatus = LeaveStatus.Approved;
         }
 
+        /// <summary>
+        /// Rejects the leave request if it is in <see cref="LeaveStatus.Pending"/> status.
+        /// </summary>
+        /// <param name="auditorId">The ID of the employee performing the rejection.</param>
+        /// <param name="comments">Required comments explaining the reason for rejection.</param>
+        /// <exception cref="InvalidLeaveStatusException">Thrown when the request status is not <see cref="LeaveStatus.Pending"/>.</exception>
         public void Reject(int auditorId, string comments) 
         {
             if (LeaveStatus != LeaveStatus.Pending)
@@ -38,6 +50,12 @@ namespace LeaveManagement.Domain.Entities
             LeaveStatus = LeaveStatus.Rejected;
         }
 
+        /// <summary>
+        /// Cancels the leave request if it is in <see cref="LeaveStatus.Pending"/> or <see cref="LeaveStatus.Approved"/> status.
+        /// </summary>
+        /// <param name="auditorId">The ID of the employee performing the cancellation.</param>
+        /// <param name="comments">Optional comments regarding the cancellation.</param>
+        /// <exception cref="InvalidLeaveStatusException">Thrown when the request status is neither <see cref="LeaveStatus.Pending"/> nor <see cref="LeaveStatus.Approved"/>.</exception>
         public void Cancel(int auditorId, string? comments) {
             if (LeaveStatus != LeaveStatus.Pending &&
                 LeaveStatus != LeaveStatus.Approved) {

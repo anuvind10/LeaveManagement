@@ -10,10 +10,10 @@ namespace LeaveManagement.Application.Services
         private readonly ITokenService _tokenService;
         private readonly UserManager<ApplicationUser> _userManager;
         
-        public AuthService(ITokenService tokenService, UserManager<ApplicationUser> usermanager)
+        public AuthService(ITokenService tokenService, UserManager<ApplicationUser> userManager)
         {
             _tokenService = tokenService;
-            _userManager = usermanager;
+            _userManager = userManager;
         }
         public async Task<string?> LoginAsync(LoginDto dto)
         { 
