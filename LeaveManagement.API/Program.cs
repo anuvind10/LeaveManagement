@@ -136,7 +136,7 @@ var app = builder.Build();
 app.UseCors("AllowFrontend");
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Azure"))
 {
     app.UseSwagger();
     app.UseSwaggerUI(options =>
@@ -220,7 +220,7 @@ using (var scope = app.Services.CreateScope())
             await Task.Delay(5000);
         }
     }
-        if (app.Environment.IsDevelopment())
+        if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("Azure"))
         await DataSeeder.SeedAsync(userManager, roleManager);
 }
 
