@@ -51,5 +51,5 @@ jobs:
       - name: Deploy to Azure App Service
         uses: azure/webapps-deploy@v3
         with:
-          app-name: leavemanagementapp-hed8gee5e2g3bufh
+          app-name: LeaveManagementApp
           images: ghcr.io/${{ github.repository_owner }}/leave-management-api:${{ github.sha }}
