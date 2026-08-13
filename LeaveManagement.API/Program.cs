@@ -20,15 +20,26 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.ApplicationInsights;
 using Azure.Identity;
 using Serilog;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog((context, config) =>
+builder.Services.AddApplicationInsightsTelemetry();
+
+builder.Host.UseSerilog((context, services, config) =>
 {
     config.ReadFrom.Configuration(context.Configuration);
+
+    var connectionString = context.Configuration["ApplicationInsights:ConnectionString"];
+    if(!string.IsNullOrEmpty(connectionString))
+    {
+        config.WriteTo.ApplicationInsights(
+            services.GetRequiredService<TelemetryClient>(),
+            TelemetryConverter.Traces);
+    }
 });
 
 var keyVaultUri = builder.Configuration["KeyVaultUri"];
