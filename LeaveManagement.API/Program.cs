@@ -20,7 +20,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Microsoft.ApplicationInsights;
+using Microsoft.ApplicationInsights.Extensibility;
 using Azure.Identity;
 using Serilog;
 using System.Text;
@@ -36,8 +36,10 @@ builder.Host.UseSerilog((context, services, config) =>
     var connectionString = context.Configuration["ApplicationInsights:ConnectionString"];
     if(!string.IsNullOrEmpty(connectionString))
     {
+        var telemetryConfig = new TelemetryConfiguration { ConnectionString = connectionString };
+
         config.WriteTo.ApplicationInsights(
-            services.GetRequiredService<TelemetryClient>(),
+            telemetryConfig,
             TelemetryConverter.Traces);
     }
 });
