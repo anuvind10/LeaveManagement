@@ -21,7 +21,8 @@ A production-style REST API built with **.NET 10** and **Clean Architecture**, d
 | API Versioning | Asp.Versioning |
 | Testing | xUnit + Moq |
 | Containerization | Docker + Docker Compose |
-| CI/CD | GitHub Actions → GitHub Container Registry |
+| CI/CD | GitHub Actions → GitHub Container Registry → Azure App Service |
+| Observability | Application Insights + Serilog sink |
 
 ---
 
@@ -161,14 +162,22 @@ ACCEPT_EULA=Y
 SA_PASSWORD=YourStrong@Password
 ```
 
-### Option 2 — Local Development
+### Option 2 — Local Development (DB in Docker, API on host)
 
-Create `LeaveManagement.API/appsettings.Development.json` (this file is gitignored):
+SQL Server is not installed locally — it runs in a Docker container. The API runs on the host via `dotnet run`.
+
+**Step 1** — Start the database container:
+
+```cmd
+docker compose up db -d
+```
+
+**Step 2** — Create `LeaveManagement.API/appsettings.Development.json` (gitignored — recreate manually on each machine):
 
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=LeaveManagementDb;User Id=sa;Password=YourStrong@Password;TrustServerCertificate=True;"
+    "DefaultConnection": "Server=localhost,1433;Database=LeaveManagementDb;User Id=sa;Password=YourStrong@Password;TrustServerCertificate=true;"
   },
   "JwtSettings": {
     "SecretKey": "your-super-secret-key-that-is-at-least-32-chars"
@@ -176,11 +185,12 @@ Create `LeaveManagement.API/appsettings.Development.json` (this file is gitignor
 }
 ```
 
-Then run:
+> **Note:** Use `User Id=sa` (SQL auth) — not `Trusted_Connection=true` (Windows auth). The Docker SQL Server runs on Linux and does not support Windows Authentication. The comma in `localhost,1433` is the SQL Server syntax for specifying a non-default port.
 
-```bash
+**Step 3** — Run the API:
+
+```cmd
 dotnet restore
-dotnet build
 dotnet run --project LeaveManagement.API
 ```
 
@@ -239,7 +249,7 @@ dotnet ef migrations remove \
 ## Project Structure
 
 ```
-LeaveManagement.sln
+LeaveManagement.slnx
 ├── LeaveManagement.Domain/
 │   ├── Entities/          # LeaveRequest, LeaveAudit, ApplicationUser
 │   ├── Enums/             # LeaveType, LeaveStatus, LeaveAction
@@ -298,14 +308,37 @@ LeaveManagement.sln
 
 ## CI/CD
 
-GitHub Actions pipeline triggers on every push to `main`:
+GitHub Actions pipeline (`.github/workflows/ci.yml`) triggers on every push to `main` as a two-job pipeline:
 
-1. Build the solution
-2. Run all tests
-3. Build Docker image
-4. Push to GitHub Container Registry (GHCR) with two tags: `:latest` and `:{commit-sha}`
+**`build` job:**
+1. Build the solution (`dotnet build`)
+2. Run all tests (`dotnet test`)
+3. Login to GitHub Container Registry (GHCR)
+4. Build and push Docker image with two tags: `:latest` and `:{commit-sha}`
 
-The commit SHA tag enables rollback to any exact code version.
+**`deploy` job** (runs only if `build` passes, gated via `needs: build`):
+1. Authenticate to Azure via **OIDC federated credentials** — GitHub mints a short-lived token per run; no client secret is stored in GitHub Secrets
+2. Deploy the SHA-tagged image to **Azure App Service** via `azure/webapps-deploy@v3`
+
+The SHA tag (not `:latest`) is used for deployment so the running container is traceable to an exact commit. Rollback is a single `az webapp config container set` command pointing to a previous SHA tag.
+
+---
+
+## Cloud Deployment
+
+The application was fully deployed to Azure to validate the production architecture end-to-end:
+
+| Component | Service |
+|---|---|
+| Container Hosting | Azure App Service (Basic B1, containerized) |
+| Database | Azure SQL Database (free tier) |
+| Secrets | Azure Key Vault (Managed Identity — no stored credentials) |
+| Observability | Application Insights (SDK auto-collection + Serilog sink) |
+| Registry | GitHub Container Registry (GHCR) |
+
+The App Service authenticates to Key Vault via **Managed Identity** — no connection string or JWT secret is stored in App Settings. CI/CD authenticates to Azure via **OIDC federated credentials** — no client secret exists anywhere in the pipeline.
+
+> Resources were torn down after end-to-end validation to stay within the $15 budget cap. End-to-end screenshots (Swagger on `*.azurewebsites.net`, App Insights dashboard, successful CI/CD pipeline runs) are in [`/Docs/Screenshots/`](./Docs/Screenshots/).
 
 ---
 
