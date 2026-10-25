@@ -37,6 +37,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/leave-management-api:${{ github.sha }}
   deploy:
     needs: build
+    if: false # Disable deployment - no Azure connection currently as the free resources were deleted
     runs-on: ubuntu-latest
     permissions:
       id-token: write
