@@ -46,7 +46,8 @@ builder.Host.UseSerilog((context, services, config) =>
 
 var keyVaultUri = builder.Configuration["KeyVaultUri"];
 
-if (!string.IsNullOrEmpty(keyVaultUri))
+if (!string.IsNullOrEmpty(keyVaultUri) &&
+!builder.Environment.IsDevelopment())
 {
     builder.Configuration.AddAzureKeyVault(
         new Uri(keyVaultUri),
