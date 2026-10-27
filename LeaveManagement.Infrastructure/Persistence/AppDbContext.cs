@@ -52,6 +52,15 @@ namespace LeaveManagement.Infrastructure.Persistence
                     .HasMaxLength(500);
                 entity.Property(e => e.Action);
             });
+
+            modelBuilder.Entity<ApplicationUser>(entity =>
+            {
+               entity.HasOne(u => u.Manager)
+                    .WithMany(u => u.DirectReports)
+                    .HasForeignKey(u => u.ManagerId)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }

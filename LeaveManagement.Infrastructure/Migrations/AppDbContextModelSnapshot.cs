@@ -17,7 +17,7 @@ namespace LeaveManagement.Infrastructure.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.3")
+                .HasAnnotation("ProductVersion", "10.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -58,6 +58,9 @@ namespace LeaveManagement.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<int?>("ManagerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -86,6 +89,8 @@ namespace LeaveManagement.Infrastructure.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ManagerId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -298,6 +303,16 @@ namespace LeaveManagement.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("LeaveManagement.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.HasOne("LeaveManagement.Domain.Entities.ApplicationUser", "Manager")
+                        .WithMany("DirectReports")
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Manager");
+                });
+
             modelBuilder.Entity("LeaveManagement.Domain.Entities.LeaveAudit", b =>
                 {
                     b.HasOne("LeaveManagement.Domain.Entities.LeaveRequest", null)
@@ -356,6 +371,11 @@ namespace LeaveManagement.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("LeaveManagement.Domain.Entities.ApplicationUser", b =>
+                {
+                    b.Navigation("DirectReports");
                 });
 
             modelBuilder.Entity("LeaveManagement.Domain.Entities.LeaveRequest", b =>

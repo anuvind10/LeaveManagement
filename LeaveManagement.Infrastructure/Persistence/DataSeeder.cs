@@ -18,42 +18,48 @@ namespace LeaveManagement.Infrastructure.Persistence
                 }
             }
 
-            //seed test users
-            await CreateUserIfNotExists(userManager, new ApplicationUser
-            {
-                UserName = "employee@test.com",
-                Email = "employee@test.com",
-                FirstName = "John",
-                LastName = "Doe"
-            }, "Test@1234", "Employee");
-
-            await CreateUserIfNotExists(userManager, new ApplicationUser
-            {
-                UserName = "manager@test.com",
-                Email = "manager@test.com",
-                FirstName = "Jane",
-                LastName = "Smith"
-            }, "Test@1234", "Manager");
-
-            await CreateUserIfNotExists(userManager, new ApplicationUser
+            var hr = await CreateUserIfNotExists(userManager, new ApplicationUser
             {
                 UserName = "hr@test.com",
                 Email = "hr@test.com",
                 FirstName = "Bob",
                 LastName = "HR"
             }, "Test@1234", "HR");
+
+            var manager = await CreateUserIfNotExists(userManager, new ApplicationUser
+            {
+                UserName = "manager@test.com",
+                Email = "manager@test.com",
+                FirstName = "Jane",
+                LastName = "Smith",
+                ManagerId = hr?.Id,
+            }, "Test@1234", "Manager");
+
+            //seed test users
+            await CreateUserIfNotExists(userManager, new ApplicationUser
+            {
+                UserName = "employee@test.com",
+                Email = "employee@test.com",
+                FirstName = "John",
+                LastName = "Doe",
+                ManagerId = manager?.Id,
+            }, "Test@1234", "Employee");
         }
 
-        private static async Task CreateUserIfNotExists(UserManager<ApplicationUser> userManager, ApplicationUser user, string password, string role)
+        private static async Task<ApplicationUser?> CreateUserIfNotExists(UserManager<ApplicationUser> userManager, ApplicationUser user, string password, string role)
         {
-            if (await userManager.FindByEmailAsync(user.Email!) == null) 
+            var existing = await userManager.FindByEmailAsync(user.Email);
+            if(existing != null) return existing;
+
+            var result = await userManager.CreateAsync(user, password);
+
+            if (result.Succeeded)
             {
-                var result = await userManager.CreateAsync(user, password);
-                if (result.Succeeded)
-                { 
-                    await userManager.AddToRoleAsync(user, role);
-                }
+                await userManager.AddToRoleAsync(user, role);
+                return user;
             }
+
+            return null;
         }
 
     }
