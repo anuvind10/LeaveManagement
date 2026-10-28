@@ -17,7 +17,8 @@ namespace LeaveManagement.Infrastructure.Repositories
             _context = context;
         }
         
-        public async Task<(int, IEnumerable<LeaveRequest>)> GetAllAsync(LeaveRequestPaginationParams paginationParams,
+        public async Task<(int, IEnumerable<LeaveRequest>)> GetAllAsync(IEnumerable<int>? employeeIds,
+            LeaveRequestPaginationParams paginationParams,
             LeaveRequestSortParams sortParams,
             LeaveRequestFilterParams filterParams)
         {
@@ -25,6 +26,11 @@ namespace LeaveManagement.Infrastructure.Repositories
                 .Include(lr => lr.LeaveAudits)
                 .AsQueryable();
 
+            if(employeeIds is not null)
+            {
+                query = query.Where(lr => employeeIds.Contains(lr.EmployeeId));
+            }
+    
             if (filterParams.Status.HasValue)
             {
                 query = query.Where(lr => lr.LeaveStatus == filterParams.Status);
@@ -37,7 +43,7 @@ namespace LeaveManagement.Infrastructure.Repositories
 
             if (filterParams.EmployeeId.HasValue)
             {
-                query = query.Where(lr => lr.EmployeeId == filterParams.EmployeeId);
+                query = query.Where(lr => lr.EmployeeId == filterParams.EmployeeId);    
             }
 
             if (filterParams.FromDate.HasValue)

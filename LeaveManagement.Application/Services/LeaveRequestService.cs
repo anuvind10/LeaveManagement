@@ -62,7 +62,7 @@ namespace LeaveManagement.Application.Services
             {
                 var currentUser = _currentUserService.UserId;
                 var employeeId = leaveRequest.EmployeeId;
-                var isManager = await _userRepository.IsManager(employeeId, currentUser);
+                var isManager = await _userRepository.IsManagerAsync(employeeId, currentUser);
 
                 if(!_currentUserService.IsInRole("HR") 
                     && !isManager 
@@ -122,6 +122,9 @@ namespace LeaveManagement.Application.Services
             return _mapper.ToDto(leaveRequest);
         }
 
+        /// <summary>
+        /// Returns all requests for HR; scoped to direct reportees for Managers.
+        /// </summary>
         public async Task<(int, IEnumerable<LeaveRequestSummaryDto>)> GetAllAsync(LeaveRequestPaginationParams paginationParams,
             LeaveRequestSortParams sortParams,
             LeaveRequestFilterParams filterParams) 
@@ -129,11 +132,17 @@ namespace LeaveManagement.Application.Services
             await ValidateAsync(_paginationValidator, paginationParams);
 
             var currentUser = _currentUserService.UserId;
+            IEnumerable<int>? reporteeIds = null;
 
-            var result = await _repository.GetAllAsync(paginationParams,
+            if (_currentUserService.IsInRole("Manager"))
+            {
+                reporteeIds = await _userRepository.GetReporteesAsync(currentUser);
+            }
+
+            var result = await _repository.GetAllAsync(reporteeIds,
+                paginationParams,
                 sortParams,
-                filterParams,
-                currentUser);
+                filterParams);
 
             var summaryDtos = _mapper.ToSummaryDtoList(result.Item2);
 

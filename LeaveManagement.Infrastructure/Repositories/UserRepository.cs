@@ -11,9 +11,17 @@ namespace LeaveManagement.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<bool> IsManager(int employeeId, int managerId)
+        public async Task<bool> IsManagerAsync(int employeeId, int managerId)
         {
             return await _context.Users.AnyAsync(u => u.Id == employeeId && u.ManagerId == managerId);
+        }
+
+        public async Task<IEnumerable<int>> GetReporteesAsync(int managerId)
+        {
+            return await _context.Users
+                .Where(u => u.ManagerId == managerId)
+                .Select(u => u.Id)
+                .ToListAsync();
         }
     }
 }
