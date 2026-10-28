@@ -5,6 +5,8 @@ using LeaveManagement.Application.Exceptions;
 using LeaveManagement.Application.Interfaces;
 using LeaveManagement.Domain.Entities;
 using LeaveManagement.Domain.Enums;
+using Microsoft.AspNetCore.Localization;
+using System.Threading.RateLimiting;
 
 namespace LeaveManagement.Application.Services
 {
@@ -15,17 +17,20 @@ namespace LeaveManagement.Application.Services
         private readonly IValidator<LeaveRequestPaginationParams> _paginationValidator;
         private readonly ILeaveRequestMapper _mapper;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IUserRepository _userRepository;
         public LeaveRequestService(ILeaveRequestRepository leaveRequestRepository, 
                                     IValidator<CreateLeaveRequestDto> creationValidator, 
                                     IValidator<LeaveRequestPaginationParams> paginationValidator,
                                     ILeaveRequestMapper mapper,
-                                    ICurrentUserService currentUserService)
+                                    ICurrentUserService currentUserService,
+                                    IUserRepository userRepository)
         {
             _repository = leaveRequestRepository;
             _creationValidator = creationValidator;
             _paginationValidator = paginationValidator;
             _mapper = mapper;
             _currentUserService = currentUserService;
+            _userRepository = userRepository;
         }
 
         public async Task<LeaveRequestDto> SubmitLeaveRequestAsync(CreateLeaveRequestDto dto, int employeeId) {
@@ -53,15 +58,23 @@ namespace LeaveManagement.Application.Services
         {
             var leaveRequest = await _repository.GetByIdAsync(id);
 
-            if (leaveRequest == null ||
-                (!_currentUserService.IsInRole("Manager") && 
-                 !_currentUserService.IsInRole("HR") &&
-                 leaveRequest.EmployeeId != _currentUserService.UserId)
-                )
+            if(leaveRequest is not null)
+            {
+                var currentUser = _currentUserService.UserId;
+                var employeeId = leaveRequest.EmployeeId;
+                var isManager = await _userRepository.IsManager(employeeId, currentUser);
+
+                if(!_currentUserService.IsInRole("HR") 
+                    && !isManager 
+                    && leaveRequest.EmployeeId != currentUser)
+                {
+                    return null;
+                }
+            }
+            else
             {
                 return null;
             }
-
             return _mapper.ToDto(leaveRequest);
         }
 
@@ -115,9 +128,12 @@ namespace LeaveManagement.Application.Services
         {
             await ValidateAsync(_paginationValidator, paginationParams);
 
+            var currentUser = _currentUserService.UserId;
+
             var result = await _repository.GetAllAsync(paginationParams,
                 sortParams,
-                filterParams);
+                filterParams,
+                currentUser);
 
             var summaryDtos = _mapper.ToSummaryDtoList(result.Item2);
 

@@ -22,18 +22,21 @@ namespace LeaveManagement.Tests.Application
         private readonly LeaveRequestPaginationParams _paginationParams;
         private readonly LeaveRequestSortParams _sortParams;
         private readonly LeaveRequestFilterParams _filterParams;
+        private readonly Mock<IUserRepository> _mockUserRepo;
         public LeaveRequestServiceTest()
         {
             _mockRepo = new Mock<ILeaveRequestRepository>();
             _mockCreationValidator = new Mock<IValidator<CreateLeaveRequestDto>>();
             _mochPaginationValidator = new Mock<IValidator<LeaveRequestPaginationParams>>();
             _mockCurrentUser = new Mock<ICurrentUserService>();
+            _mockUserRepo = new Mock<IUserRepository>();
             
             _service = new LeaveRequestService(_mockRepo.Object,
                                                _mockCreationValidator.Object,
                                                _mochPaginationValidator.Object,
                                                new LeaveRequestMapper(),
-                                               _mockCurrentUser.Object);
+                                               _mockCurrentUser.Object,
+                                               _mockUserRepo.Object);
 
             _paginationParams = new LeaveRequestPaginationParams();
             _sortParams = new LeaveRequestSortParams();
@@ -76,6 +79,37 @@ namespace LeaveManagement.Tests.Application
                    .ReturnsAsync(leaveRequest);
             _mockCurrentUser.Setup(cu => cu.UserId).Returns(1);
             _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(false);
+
+            var result = await _service.GetByIdAsync(leaveRequest.Id);
+            Assert.Null(result);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_WhenCurrentUserIsManagerOfEmployee_ShouldReturnDto()
+        {
+
+            var leaveRequest = CreateLeaveRequest(2);
+            _mockRepo.Setup(r => r.GetByIdAsync(leaveRequest.Id))
+                   .ReturnsAsync(leaveRequest);
+            _mockCurrentUser.Setup(cu => cu.UserId).Returns(5); //Managers ID
+            _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(false); //Not HR
+            _mockUserRepo.Setup(u => u.IsManager(leaveRequest.EmployeeId, 5)).ReturnsAsync(true);
+
+            var result = await _service.GetByIdAsync(leaveRequest.Id);
+            Assert.NotNull(result);
+            Assert.Equal(leaveRequest.Id, result.Id);
+        }
+
+        [Fact]
+        public async Task GetByIdAsync_WhenCurrentUserIsNotManagerOfEmployee_ShouldReturnNull()
+        {
+
+            var leaveRequest = CreateLeaveRequest(2);
+            _mockRepo.Setup(r => r.GetByIdAsync(leaveRequest.Id))
+                   .ReturnsAsync(leaveRequest);
+            _mockCurrentUser.Setup(cu => cu.UserId).Returns(6); //Non Manager ID
+            _mockCurrentUser.Setup(cu => cu.IsInRole(It.IsAny<string>())).Returns(false); //Not HR
+            _mockUserRepo.Setup(u => u.IsManager(leaveRequest.EmployeeId, 6)).ReturnsAsync(false);
 
             var result = await _service.GetByIdAsync(leaveRequest.Id);
             Assert.Null(result);
